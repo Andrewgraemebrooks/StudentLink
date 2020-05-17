@@ -1,4 +1,4 @@
-// Brings in the passport strategy for json web token (jwt)
+// Brings in the passport strategy for json web token (jwt).
 const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
 // Brings in mongoose, the keys file, and the User model.
