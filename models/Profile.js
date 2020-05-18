@@ -22,7 +22,6 @@ const ProfileSchema = new Schema({
   // Which groups they belong to
   groups: {
     type: [String],
-    required: true,
   },
   // There bio
   bio: {

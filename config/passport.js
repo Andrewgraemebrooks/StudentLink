@@ -9,7 +9,7 @@ const keys = require('./keys');
 // Make an object of options for the JwtStrategy
 const opts = {};
 opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
-opts.secret = keys.secret;
+opts.secretOrKey = keys.secretOrKey;
 
 // Export module as variable called passport along with its configuration.
 module.exports = (passport) => {
