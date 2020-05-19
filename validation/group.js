@@ -33,11 +33,11 @@ module.exports = function validategroupInput(data) {
   
   // Adds an error if the handle is not the correct length
   if (!Validator.isLength(data.handle, { min: 2, max: 40 })) {
-    errors.handle = 'Handle needs to be between 2 and 4 characters';
+    errors.handle = 'Handle needs to be between 2 and 40 characters';
   }
   // Adds an error if the description is not the correct length
-  if (!Validator.isLength(data.description, { min: 2, max: 40 })) {
-    errors.description = 'Description needs to be between 2 and 4 characters';
+  if (!Validator.isLength(data.description, { min: 2, max: 200 })) {
+    errors.description = 'Description needs to be between 2 and 200 characters';
   }
   
   // Returns the errors object and a boolean variable of whether or not there are any errors.
