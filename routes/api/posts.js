@@ -12,7 +12,11 @@ const validatePostInput = require('../../validation/posts');
 // @route   GET api/posts/test
 // @desc    Tests posts route
 // @access  Public
+<<<<<<< Updated upstream
 router.get('/test', (req, res) => res.json({ msg: 'Users Works' }));
+=======
+router.get('/test', (req, res) => res.json({ msg: 'Posts Works' }));
+>>>>>>> Stashed changes
 
 // @route   POST api/posts
 // @desc    Create post

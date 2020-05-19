@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const passport = require('passport');
 
 // Bring in the routes
+const group = require('./routes/api/group');
 const posts = require('./routes/api/posts');
 const profile = require('./routes/api/profile');
 const users = require('./routes/api/users');
@@ -35,8 +36,17 @@ app.use(passport.initialize());
 // Passport Config
 require('./config/passport')(passport);
 
+<<<<<<< Updated upstream
 // Use Routes
+<<<<<<< Updated upstream
 // app.use('/api/posts', posts);
+=======
+=======
+// Routes
+app.use('/api/group', group);
+>>>>>>> Stashed changes
+app.use('/api/posts', posts);
+>>>>>>> Stashed changes
 app.use('/api/profile', profile);
 app.use('/api/users', users);
 

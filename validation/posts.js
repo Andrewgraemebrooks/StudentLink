@@ -1,7 +1,23 @@
+<<<<<<< Updated upstream
 const Validator = require('validator');
 const isEmpty = require('./is-empty');
 
 module.exports = function validatePostInput(data) {
+=======
+// Bring in the validator npm module and the isEmpty function.
+const Validator = require('validator');
+const isEmpty = require('./is-empty');
+
+/**
+ * Validates the input from the api/users/register route
+ * @author Andrew Brooks
+ * @param {any} data - The variable to check whether or not it is empty.
+ * @return {Object} errors - The errors object containing the value of the specific error(s)
+ * @return {boolean} isValid - A boolean value on whether or not there are errors.
+ */
+module.exports = function validatePostInput(data) {
+  // Create an errors object to store errors
+>>>>>>> Stashed changes
   let errors = {};
 
   // Validator can only validate String
@@ -17,6 +33,10 @@ module.exports = function validatePostInput(data) {
     errors.text = 'Text field is required';
   }
 
+<<<<<<< Updated upstream
+=======
+  // Returns the errors object and a boolean variable of whether or not there are any errors.
+>>>>>>> Stashed changes
   return {
     errors,
     isValid: isEmpty(errors),
