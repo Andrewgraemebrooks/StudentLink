@@ -9,7 +9,7 @@ const isEmpty = require('./is-empty');
  * @return {Object} errors - The errors object containing the value of the specific error(s)
  * @return {boolean} isValid - A boolean value on whether or not there are errors.
  */
-module.exports = function validategroupInput(data) {
+module.exports = function validateGroupInput(data) {
   // Create an errors object to store errors
   let errors = {};
 

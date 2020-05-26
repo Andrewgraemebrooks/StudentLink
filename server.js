@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const passport = require('passport');
 
 // Bring in the routes
-const group = require('./routes/api/group');
+const groups = require('./routes/api/groups');
 const posts = require('./routes/api/posts');
 const profile = require('./routes/api/profile');
 const users = require('./routes/api/users');
@@ -37,7 +37,7 @@ app.use(passport.initialize());
 require('./config/passport')(passport);
 
 // Routes
-app.use('/api/group', group);
+app.use('/api/groups', groups);
 app.use('/api/posts', posts);
 app.use('/api/profile', profile);
 app.use('/api/users', users);

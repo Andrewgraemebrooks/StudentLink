@@ -1,14 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const jwt = require('jsonwebtoken');
-const keys = require('../../config/keys');
 const passport = require('passport');
 
 // Load Input Validation
-const validateGroupInput = require('../../validation/group.js');
+const validateGroupInput = require('../../validation/groups.js');
 
-// Load group model
+// Load models
 const Group = require('../../models/Group');
+const Profile = require('../../models/Profile');
 
 // @route   GET api/groups/test
 // @desc    Tests users route
@@ -16,7 +15,7 @@ const Group = require('../../models/Group');
 router.get('/test', (req, res) => res.json({ msg: 'Groups Works' }));
 
 // @route   POST api/groups
-// @desc    Create group
+// @desc    The user creates a group
 // @access  Private
 router.post(
   '/',
@@ -49,8 +48,39 @@ router.post(
           .then((group) => res.json(group))
           // Catch any errors
           .catch((err) => console.log(err));
+
+        // Add group to user's list of groups
+        Profile.findOne({ user: req.user.id }).then((profile) => {
+          profile.groups.addToSet(newGroup.handle);
+          profile.save().catch((err) => console.log(err));
+        });
       }
     });
+  }
+);
+
+// @route   GET api/groups/all
+// @desc    Get all groups that the user has joined
+// @access  Private
+router.get(
+  '/all',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => {
+    // Create an errors object to contain any errors.
+    const errors = {};
+    // Use the find method to get all the groups
+    Group.find()
+      .then((groups) => {
+        // If there aren't any groups, return an error
+        if (!groups) {
+          errors.nogroups = 'This user has not joined any groups';
+          return res.status(404).json(errors);
+        }
+        // Return the groups as a json object
+        res.json(groups);
+      })
+      // Catch any errors and return them.
+      .catch((err) => res.status(404).json(err));
   }
 );
 

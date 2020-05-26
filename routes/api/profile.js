@@ -45,25 +45,29 @@ router.get(
 
 // @route   GET api/profile/all
 // @desc    Get all profiles
-// @access  Public
-router.get('/all', (req, res) => {
-  // Create an errors object to contain any errors.
-  const errors = {};
-  // Use the find method to get all users
-  Profile.find()
-    .populate('user', ['name', 'avatar'])
-    .then((profiles) => {
-      // If there aren't any profiles, return an error
-      if (!profiles) {
-        errors.noprofile = 'There are no profiles';
-        return res.status(404).json(errors);
-      }
-      // Return the profiles as a json object
-      res.json(profiles);
-    })
-    // Catch any errors and return them.
-    .catch((err) => res.status(404).json(err));
-});
+// @access  Private
+router.get(
+  '/all',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => {
+    // Create an errors object to contain any errors.
+    const errors = {};
+    // Use the find method to get all users
+    Profile.find()
+      .populate('user', ['name', 'avatar'])
+      .then((profiles) => {
+        // If there aren't any profiles, return an error
+        if (!profiles) {
+          errors.noprofile = 'There are no profiles';
+          return res.status(404).json(errors);
+        }
+        // Return the profiles as a json object
+        res.json(profiles);
+      })
+      // Catch any errors and return them.
+      .catch((err) => res.status(404).json(err));
+  }
+);
 
 // @route   GET api/profile/handle/:handle
 // @desc    Get profile by handle
