@@ -39,7 +39,10 @@ router.post(
     });
 
     // Save the new post
-    newPost.save().then();
+    newPost
+      .save()
+      .then(res.status(200).json(newPost))
+      .catch((err) => console.log(err));
   }
 );
 
