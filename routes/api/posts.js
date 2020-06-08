@@ -240,7 +240,7 @@ router.delete(
         // Save
         post.save().then((post) => res.json(post));
       })
-      .catch((err) => res.status(404).json({ postnotfound: 'No posts found' }));
+      .catch(() => res.status(404).json({ postnotfound: 'No posts found' }));
   }
 );
 

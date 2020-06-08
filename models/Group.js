@@ -4,6 +4,11 @@ const Schema = mongoose.Schema;
 
 // Create Schema
 const GroupSchema = new Schema({
+  // User Id of the user who created the group
+  user: {
+    type: Schema.Types.ObjectId,
+    ref: 'users',
+  },
   // Name of the group
   name: {
     type: String,

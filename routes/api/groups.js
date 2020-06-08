@@ -33,6 +33,7 @@ router.post(
       name: req.body.name,
       handle: req.body.handle,
       description: req.body.description,
+      user: req.user.id,
     });
 
     Group.findOne({ handle: req.body.handle }).then((group) => {
@@ -56,6 +57,48 @@ router.post(
         });
       }
     });
+  }
+);
+
+// @route   DELETE api/groups/:handle
+// @desc    The user deletes a group
+// @access  Private
+router.delete(
+  '/:handle',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => {
+    // Find the group
+    Group.findOne({ handle: req.params.handle })
+      .then((group) => {
+        // Delete the group
+        Group.findOneAndRemove({ _id: group._id }).then(
+          // Remove group from all users' profile
+          // Find all profiles
+          Profile.find().then((profiles) => {
+            // Loop through each profile
+            profiles.forEach((profile) => {
+              // Loop through each group
+              profile.groups.forEach((group) => {
+                // If the group is found then remove it
+                if (group === req.params.handle) {
+                  // Get the index of the group to be deleted
+                  const index = profile.groups.indexOf(group);
+                  // Remove the group from the profile
+                  profile.groups.splice(index, 1);
+                  // Save the modified profile and return a success response
+                  profile.save().then(res.status(200).json({ success: true }));
+                }
+              });
+            });
+          })
+        );
+      })
+      // Catch in case no posts are found with that id.
+      .catch(() =>
+        res
+          .status(404)
+          .json({ groupnotfound: 'No group found with that handle' })
+      );
   }
 );
 

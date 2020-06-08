@@ -13,6 +13,7 @@ const users = require('./routes/api/users');
 // Settings to avoid mongoose deprecation warnings
 mongoose.set('useNewUrlParser', true);
 mongoose.set('useUnifiedTopology', true);
+mongoose.set('useFindAndModify', false);
 
 // New express application
 const app = express();
