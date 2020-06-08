@@ -9,6 +9,7 @@ const passport = require('passport');
 // Load Input Validation
 const validateRegisterInput = require('../../validation/register.js');
 const validateLoginInput = require('../../validation/login');
+const validateUpdateInput = require('../../validation/update-user');
 
 // Load user model
 const User = require('../../models/User');
@@ -133,6 +134,50 @@ router.get(
       name: req.user.name,
       email: req.user.email,
     });
+  }
+);
+
+// @route   POST api/users/update
+// @desc    Updates current user
+// @access  Private
+router.post(
+  '/update',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => {
+    // Get the errors object and the boolean value of whether the input is valid.
+    const { errors, isValid } = validateUpdateInput(req.body);
+
+    // If the input is not valid: send a 400 status and return the error object.
+    if (!isValid) {
+      return res.status(400).json(errors);
+    }
+
+    const updatedFields = {};
+    if (req.body.name) updatedFields.name = req.body.name;
+    if (req.body.email) updatedFields.email = req.body.email;
+
+    if (req.body.password) {
+      // Hash the password and set the user's password to the new hashed password
+      bcrypt.genSalt(10, (err, salt) => {
+        bcrypt.hash(req.body.password, salt, (err, hash) => {
+          if (err) throw err;
+          updatedFields.password = hash;
+          // Update the user's information
+          User.findOneAndUpdate(
+            { _id: req.user.id },
+            { $set: updatedFields },
+            { new: true }
+          ).then((user) => res.json(user));
+        });
+      });
+    } else {
+      // Update the user's information
+      User.findOneAndUpdate(
+        { _id: req.user.id },
+        { $set: updatedFields },
+        { new: true }
+      ).then((user) => res.json(user));
+    }
   }
 );
 
