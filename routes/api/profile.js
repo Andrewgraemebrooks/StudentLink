@@ -206,8 +206,6 @@ router.post(
     // Object to contain the new fields
     const updatedFields = {};
 
-    console.log(req.body.handle);
-
     // Check to see if handle exists so that two profiles don't have the same handle
     if (req.body.handle) {
       Profile.findOne({ handle: req.body.handle }).then((profile) => {

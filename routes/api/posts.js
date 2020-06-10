@@ -8,6 +8,7 @@ const Profile = require('../../models/Profile');
 
 // Validation
 const validatePostInput = require('../../validation/posts');
+const validateUpdateInput = require('../../validation/update-posts');
 
 // @route   GET api/posts/test
 // @desc    Tests posts route
@@ -238,6 +239,35 @@ router.delete(
         post.save().then((post) => res.json(post));
       })
       .catch(() => res.status(404).json({ postnotfound: 'No posts found' }));
+  }
+);
+
+// @route   POST api/posts/update
+// @desc    Updates current user
+// @access  Private
+router.post(
+  '/update/:id',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => {
+    // Get the errors object and the boolean value of whether the input is valid.
+    const { errors, isValid } = validateUpdateInput(req.body);
+
+    // If the input is not valid: send a 400 status and return the error object.
+    if (!isValid) {
+      return res.status(400).json(errors);
+    }
+
+    // Object to contain the new fields
+    const updatedFields = {};
+
+    if (req.body.text) updatedFields.text = req.body.text;
+
+    // Update the posts's information
+    Post.findOneAndUpdate(
+      { _id: req.params.id },
+      { $set: updatedFields },
+      { new: true }
+    ).then((post) => res.json(post));
   }
 );
 
