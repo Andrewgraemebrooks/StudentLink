@@ -5,6 +5,7 @@ const validator = require('validator');
 
 // Load validation
 const validateProfileInput = require('../../validation/profile');
+const validateUpdateInput = require('../../validation/update-profile');
 
 // Load Profile Model
 const Profile = require('../../models/Profile');
@@ -133,7 +134,7 @@ router.post(
     if (req.body.handle) {
       // Trim all whitespace from the both ends of the input
       profileFields.handle = validator.trim(req.body.handle);
-    } 
+    }
     if (req.body.university) profileFields.university = req.body.university;
     // Groups - Split into an array
     if (typeof req.body.groups !== 'undefined') {
@@ -184,6 +185,51 @@ router.delete(
         res.json({ success: true })
       );
     });
+  }
+);
+
+// @route   POST api/profile/update
+// @desc    Updates current user
+// @access  Private
+router.post(
+  '/update',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => {
+    // Get the errors object and the boolean value of whether the input is valid.
+    const { errors, isValid } = validateUpdateInput(req.body);
+
+    // If the input is not valid: send a 400 status and return the error object.
+    if (!isValid) {
+      return res.status(400).json(errors);
+    }
+
+    // Object to contain the new fields
+    const updatedFields = {};
+
+    console.log(req.body.handle);
+
+    // Check to see if handle exists so that two profiles don't have the same handle
+    if (req.body.handle) {
+      Profile.findOne({ handle: req.body.handle }).then((profile) => {
+        if (profile) {
+          errors.handle = 'That handle already exists';
+          res.status(400).json(errors);
+        }
+      });
+
+      // Add the handle to the updated fields object
+      updatedFields.handle = validator.trim(req.body.handle);;
+    }
+    // Add the new university and bio information, if inputted.
+    if (req.body.university) updatedFields.university = req.body.university;
+    if (req.body.bio) updatedFields.bio = req.body.bio;
+
+    // Update the profile's information
+    Profile.findOneAndUpdate(
+      { user: req.user.id },
+      { $set: updatedFields },
+      { new: true }
+    ).then((profile) => res.json(profile));
   }
 );
 

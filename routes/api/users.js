@@ -37,14 +37,13 @@ router.post('/register', (req, res) => {
     if (user) {
       return res.status(400).json({ email: 'Email already exists' });
     } else {
-
-      // Normalise the email to all lowercase
-      const normalisedEmail = validator.normalizeEmail(req.body.email, {all_lowercase: true})
-
       // Create a new user with the request's information
       const newUser = new User({
         name: req.body.name,
-        email: normalisedEmail,
+        // Normalise the email to all lowercase
+        email: validator.normalizeEmail(req.body.email, {
+          all_lowercase: true,
+        }),
         avatar,
         password: req.body.password,
       });
@@ -151,7 +150,12 @@ router.post(
 
     const updatedFields = {};
     if (req.body.name) updatedFields.name = req.body.name;
-    if (req.body.email) updatedFields.email = req.body.email;
+    if (req.body.email) {
+      // Normalise email to all lowercase
+      updatedFields.email = validator.normalizeEmail(req.body.email, {
+        all_lowercase: true,
+      });
+    }
 
     if (req.body.password) {
       // Hash the password and set the user's password to the new hashed password
