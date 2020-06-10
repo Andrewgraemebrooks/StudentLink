@@ -26,7 +26,7 @@ module.exports = function validateUpdateInput(data) {
   }
 
   // Adds an error if the email inputted is not a variable email.
-  if (!Validator.isEmail(data.email)) {
+  if (!Validator.isEmpty(data.email) && !Validator.isEmail(data.email)) {
     errors.email = 'Email is invalid';
   }
 

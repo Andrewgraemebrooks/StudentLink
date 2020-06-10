@@ -10,11 +10,6 @@ const posts = require('./routes/api/posts');
 const profile = require('./routes/api/profile');
 const users = require('./routes/api/users');
 
-// Settings to avoid mongoose deprecation warnings
-mongoose.set('useNewUrlParser', true);
-mongoose.set('useUnifiedTopology', true);
-mongoose.set('useFindAndModify', false);
-
 // New express application
 const app = express();
 
@@ -24,6 +19,11 @@ app.use(bodyParser.json());
 
 // Configuration for the database
 const db = require('./config/keys').mongoURI;
+
+// Settings to avoid mongoose deprecation warnings
+mongoose.set('useNewUrlParser', true);
+mongoose.set('useUnifiedTopology', true);
+mongoose.set('useFindAndModify', false);
 
 // Connect to MongoDB using Mongoose
 mongoose

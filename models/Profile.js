@@ -18,6 +18,8 @@ const ProfileSchema = new Schema({
   // Which university they go to
   university: {
     type: String,
+    required: true,
+    max: 100
   },
   // Which groups they belong to
   groups: {
@@ -26,6 +28,8 @@ const ProfileSchema = new Schema({
   // There bio
   bio: {
     type: String,
+    required: true,
+    max: 300
   },
   // The date that their account was created
   date: {

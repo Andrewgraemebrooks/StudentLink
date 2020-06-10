@@ -3,7 +3,7 @@ const Validator = require('validator');
 const isEmpty = require('./is-empty');
 
 /**
- * Validates the input from the api/users/register route
+ * Validates the input from the api/groups route
  * @author Andrew Brooks
  * @param {any} data - The variable to check whether or not it is empty.
  * @return {Object} errors - The errors object containing the value of the specific error(s)
