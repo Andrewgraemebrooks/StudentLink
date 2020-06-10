@@ -29,8 +29,8 @@ router.get(
     const errors = {};
     // Find the user in the database by the user id
     Profile.findOne({ user: req.user.id })
-      // Populate the name and avatar fields
-      .populate('user', ['name, avatar'])
+      // Populate the name field
+      .populate('user', ['name'])
       .then((profile) => {
         // If the profile is not found then there is no profile for that user
         if (!profile) {
@@ -56,7 +56,7 @@ router.get(
     const errors = {};
     // Use the find method to get all users
     Profile.find()
-      .populate('user', ['name', 'avatar'])
+      .populate('user', ['name'])
       .then((profiles) => {
         // If there aren't any profiles, return an error
         if (!profiles) {
@@ -78,7 +78,7 @@ router.get('/handle/:handle', (req, res) => {
   // Search the database for the user by their handle
   Profile.findOne({ handle: req.params.handle })
     // Populate the fields
-    .populate('user', ['name, avatar'])
+    .populate('user', ['name'])
     .then((profile) => {
       // If there is no profile found by that handle return an error
       if (!profile) {
@@ -98,8 +98,8 @@ router.get('/handle/:handle', (req, res) => {
 router.get('/user/:user_id', (req, res) => {
   // Search the database for the user by their id
   Profile.findOne({ user: req.params.user_id })
-    // Populate the user's name and avatar with the right information
-    .populate('user', ['name, avatar'])
+    // Populate the user's name with the right information
+    .populate('user', ['name'])
     .then((profile) => {
       // If no profile is found then return an error
       if (!profile) {
@@ -218,7 +218,7 @@ router.post(
       });
 
       // Add the handle to the updated fields object
-      updatedFields.handle = validator.trim(req.body.handle);;
+      updatedFields.handle = validator.trim(req.body.handle);
     }
     // Add the new university and bio information, if inputted.
     if (req.body.university) updatedFields.university = req.body.university;

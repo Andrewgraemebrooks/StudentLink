@@ -34,7 +34,6 @@ router.post(
     const newPost = new Post({
       text: req.body.text,
       name: req.body.name,
-      avatar: req.body.avatar,
       user: req.user.id,
     });
 
@@ -106,30 +105,29 @@ router.post(
   // Authenticate the user
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
-    Profile.findOne({ user: req.user.id }).then((profile) => {
-      Post.findById(req.params.id)
-        .then((post) => {
-          // Check if the user has already liked it
-          if (
-            post.likes.filter((like) => like.user.toString() === req.user.id)
-              .length > 0
-          ) {
-            return res
-              .status(400)
-              .json({ alreadyliked: 'User already liked this post' });
-          }
-
-          // Add user id to the likes array
-          posts.likes.unshift({ user: req.user.id });
-
-          // Save the post
-          post.save.then((post) => res.json(post));
-        })
-        // Catch any errors
-        .catch(
-          res.status(404).json({ nopostfound: 'No posts found with that ID' })
-        );
-    });
+    // Find the post
+    Post.findOne({ _id: req.params.id })
+      .then((post) => {
+        // Check if the user has already liked it
+        if (
+          post.likes.filter((like) => like.user.toString() === req.user.id)
+            .length > 0
+        ) {
+          return res
+            .status(400)
+            .json({ alreadyliked: 'User already liked this post' });
+        }
+        // Add user to likes array
+        post.likes.unshift({ user: req.user.id });
+        // Save post
+        post
+          .save()
+          .then((post) => res.json(post))
+          .catch((err) => res.json(err));
+      })
+      .catch((err) =>
+        res.status(400).json({ error: `There was an error: ${err}` })
+      );
   }
 );
 
@@ -194,7 +192,6 @@ router.post(
         const newComment = {
           text: req.body.text,
           name: req.body.name,
-          avatar: req.body.avatar,
           user: req.user.id,
         };
 

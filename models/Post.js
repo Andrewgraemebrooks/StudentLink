@@ -18,10 +18,6 @@ const PostSchema = new Schema({
   name: {
     type: String,
   },
-  // Avatar of user
-  avatar: {
-    type: String,
-  },
   // The likes of the user
   likes: [
     {
@@ -46,10 +42,6 @@ const PostSchema = new Schema({
       },
       // Name of commenter (seperate so that if the account is deleted, the comment remains)
       name: {
-        type: String,
-      },
-      // Avatar of commenter (seperate so that if the account is deleted, the comment remains)
-      avatar: {
         type: String,
       },
       // Date of the comment

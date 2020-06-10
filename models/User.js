@@ -19,10 +19,6 @@ const UserSchema = new Schema({
     type: String,
     required: true,
   },
-  // Avatar for the user
-  avatar: {
-    type: String,
-  },
 });
 
 // Export the user model.

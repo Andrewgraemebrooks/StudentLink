@@ -44,7 +44,6 @@ router.post('/register', (req, res) => {
         email: validator.normalizeEmail(req.body.email, {
           all_lowercase: true,
         }),
-        avatar,
         password: req.body.password,
       });
 
@@ -95,7 +94,7 @@ router.post('/login', (req, res) => {
       if (isMatch) {
         // The password is correct.
         // Create the JWT payload for authentication.
-        const payload = { id: user.id, name: user.name, avatar: user.avatar };
+        const payload = { id: user.id, name: user.name };
         // Sign the token.
         jwt.sign(
           payload,
