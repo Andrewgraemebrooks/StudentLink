@@ -1,5 +1,5 @@
 // Bring in the validator npm module and the isEmpty function.
-const Validator = require('validator');
+const validator = require('validator');
 const isEmpty = require('./is-empty');
 
 /**
@@ -21,22 +21,22 @@ module.exports = function validateUpdateInput(data) {
 
 
   // Adds an error if the name field has an incorrent number of characters.
-  if (!Validator.isEmpty(data.name) && !Validator.isLength(data.name, { min: 2, max: 30 })) {
+  if (!validator.isEmpty(data.name) && !validator.isLength(data.name, { min: 2, max: 30 })) {
     errors.name = 'Name must be between 2 and 30 characters';
   }
 
   // Adds an error if the email inputted is not a variable email.
-  if (!Validator.isEmpty(data.email) && !Validator.isEmail(data.email)) {
+  if (!validator.isEmpty(data.email) && !validator.isEmail(data.email)) {
     errors.email = 'Email is invalid';
   }
 
   // Adds an error if the password is not the correct length.
-  if (!(Validator.isLength(data.password), { min: 6, max: 30 })) {
+  if (!(validator.isLength(data.password), { min: 6, max: 30 })) {
     errors.password = 'Password must be at least 6 characters';
   }
 
   // Adds an error if passwords do not match
-  if (!Validator.equals(data.password, data.password2)) {
+  if (!validator.equals(data.password, data.password2)) {
     errors.password2 = 'Passwords must match';
   }
 

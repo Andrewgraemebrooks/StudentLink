@@ -1,5 +1,5 @@
 // Bring in the validator npm module and the isEmpty function.
-const Validator = require('validator');
+const validator = require('validator');
 const isEmpty = require('./is-empty');
 
 /**
@@ -13,16 +13,16 @@ module.exports = function validatePostInput(data) {
   // Create an errors object to store errors
   let errors = {};
 
-  // Validator can only validate String
+  // validator can only validate String
   data.text = !isEmpty(data.text) ? data.text : '';
 
   // Add an error if the text is not the right length
-  if(!Validator.isLength(data.text, {min:10,max:300})) {
+  if(!validator.isLength(data.text, {min:10,max:300})) {
     errors.text = 'Text must be between 10 and characters'
   }
 
   // Add an error if the text field is empty
-  if (Validator.isEmpty(data.text)) {
+  if (validator.isEmpty(data.text)) {
     errors.text = 'Text field is required';
   }
 

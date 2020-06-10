@@ -1,5 +1,5 @@
 // Bring in the validator npm module and the isEmpty function.
-const Validator = require('validator');
+const validator = require('validator');
 const isEmpty = require('./is-empty');
 
 /**
@@ -18,22 +18,22 @@ module.exports = function validateLoginInput(data) {
   data.password = !isEmpty(data.password) ? data.password : '';
 
   // Adds an error if the email inputted is not a valid email.
-  if (!Validator.isEmail(data.email)) {
+  if (!validator.isEmail(data.email)) {
     errors.email = 'Email is invalid';
   }
 
   // Adds an error if the email field is empty.
-  if (Validator.isEmpty(data.email)) {
+  if (validator.isEmpty(data.email)) {
     errors.email = 'Email field is required';
   }
 
   // Adds an error if the password field is empty.
-  if (Validator.isEmpty(data.password)) {
+  if (validator.isEmpty(data.password)) {
     errors.password = 'Password field is required';
   }
 
   // Adds an error if the password is not the correct length.
-  if (!(Validator.isLength(data.password), { min: 6, max: 30 })) {
+  if (!(validator.isLength(data.password), { min: 6, max: 30 })) {
     errors.password = 'Password must be at least 6 characters';
   }
 

@@ -5,6 +5,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const keys = require('../../config/keys');
 const passport = require('passport');
+const validator = require('validator');
 
 // Load Input Validation
 const validateRegisterInput = require('../../validation/register.js');
@@ -44,10 +45,13 @@ router.post('/register', (req, res) => {
         d: 'mm', // Default
       });
 
+      // Normalise the email to all lowercase
+      const normalisedEmail = validator.normalizeEmail(req.body.email, {all_lowercase: true})
+
       // Create a new user with the request's information
       const newUser = new User({
         name: req.body.name,
-        email: req.body.email,
+        email: normalisedEmail,
         avatar,
         password: req.body.password,
       });

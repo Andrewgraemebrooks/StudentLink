@@ -1,5 +1,5 @@
 // Bring in the validator npm module and the isEmpty function.
-const Validator = require('validator');
+const validator = require('validator');
 const isEmpty = require('./is-empty');
 
 /**
@@ -19,33 +19,33 @@ module.exports = function validateProfileInput(data) {
   data.bio = !isEmpty(data.bio) ? data.bio : '';
 
   // Adds an error if the handle is not the correct length
-  if (!Validator.isLength(data.handle, { min: 2, max: 40 })) {
+  if (!validator.isLength(data.handle, { min: 2, max: 40 })) {
     errors.handle = 'Handle needs to be between 2 and 4 characters';
   }
   // Adds an error if the university is not the correct length
-  if (!Validator.isLength(data.university, { min: 1, max: 40 })) {
+  if (!validator.isLength(data.university, { min: 1, max: 40 })) {
     errors.university = 'University needs to be between 1 and 100 characters';
   }
   // Adds an error if the bio is not the correct length
-  if (!Validator.isLength(data.bio, { min: 1, max: 300 })) {
+  if (!validator.isLength(data.bio, { min: 1, max: 300 })) {
     errors.bio = 'Bio needs to be between 1 and 300 characters';
   }
 
   // Adds an error if the handle contains non-ASCII characters
-  if (!Validator.isAscii(data.handle)) {
+  if (!validator.isAscii(data.handle)) {
     errors.handle = 'Handle must only contain ASCII characters';
   }
-  
+
   // Adds an error if the handle field is empty.
-  if (Validator.isEmpty(data.handle)) {
+  if (validator.isEmpty(data.handle)) {
     errors.handle = 'Handle field is required';
   }
   // Adds an error if the university field is empty.
-  if (Validator.isEmpty(data.university)) {
+  if (validator.isEmpty(data.university)) {
     errors.university = 'University field is required';
   }
   // Adds an error if the bio field is empty.
-  if (Validator.isEmpty(data.bio)) {
+  if (validator.isEmpty(data.bio)) {
     errors.bio = 'Bio field is required';
   }
 

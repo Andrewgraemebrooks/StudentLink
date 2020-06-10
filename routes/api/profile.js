@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const passport = require('passport');
+const validator = require('validator');
 
 // Load validation
 const validateProfileInput = require('../../validation/profile');
@@ -129,7 +130,10 @@ router.post(
     // Get the request data and put it into the profile fields object
     const profileFields = {};
     profileFields.user = req.user.id;
-    if (req.body.handle) profileFields.handle = req.body.handle;
+    if (req.body.handle) {
+      // Trim all whitespace from the both ends of the input
+      profileFields.handle = validator.trim(req.body.handle);
+    } 
     if (req.body.university) profileFields.university = req.body.university;
     // Groups - Split into an array
     if (typeof req.body.groups !== 'undefined') {
