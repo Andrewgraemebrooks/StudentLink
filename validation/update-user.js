@@ -5,7 +5,7 @@ const isEmpty = require('./is-empty');
 /**
  * Validates the input from the api/users/update route
  * @author Andrew Brooks
- * @param {any} data - The variable to check whether or not it is empty.
+ * @param {any} data - The inputted data to be validated
  * @return {Object} errors - The errors object containing the value of the specific error(s)
  * @return {boolean} isValid - A boolean value on whether or not there are errors.
  */
@@ -19,9 +19,11 @@ module.exports = function validateUpdateInput(data) {
   data.password = !isEmpty(data.password) ? data.password : '';
   data.password2 = !isEmpty(data.password2) ? data.password2 : '';
 
-
   // Adds an error if the name field has an incorrent number of characters.
-  if (!validator.isEmpty(data.name) && !validator.isLength(data.name, { min: 2, max: 30 })) {
+  if (
+    !validator.isEmpty(data.name) &&
+    !validator.isLength(data.name, { min: 2, max: 30 })
+  ) {
     errors.name = 'Name must be between 2 and 30 characters';
   }
 

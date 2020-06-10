@@ -1,7 +1,7 @@
 /**
  * Checks to see if a given variable is empty or not.
  * @author Andrew Brooks
- * @param {any} value - The variable to check whether or not it is empty.
+ * @param {any} value - The inputted data to be validated
  * @return {boolean}
  */
 const isEmpty = (value) =>

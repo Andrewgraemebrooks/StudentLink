@@ -5,7 +5,7 @@ const isEmpty = require('./is-empty');
 /**
  * Validates the input from the api/groups route
  * @author Andrew Brooks
- * @param {any} data - The variable to check whether or not it is empty.
+ * @param {any} data - The inputted data to be validated
  * @return {Object} errors - The errors object containing the value of the specific error(s)
  * @return {boolean} isValid - A boolean value on whether or not there are errors.
  */
@@ -30,7 +30,7 @@ module.exports = function validateGroupInput(data) {
   if (validator.isEmpty(data.description)) {
     errors.description = 'Description field is required';
   }
-  
+
   // Adds an error if the handle is not the correct length
   if (!validator.isLength(data.handle, { min: 2, max: 40 })) {
     errors.handle = 'Handle needs to be between 2 and 40 characters';
@@ -39,7 +39,7 @@ module.exports = function validateGroupInput(data) {
   if (!validator.isLength(data.description, { min: 2, max: 200 })) {
     errors.description = 'Description needs to be between 2 and 200 characters';
   }
-  
+
   // Returns the errors object and a boolean variable of whether or not there are any errors.
   return {
     errors,

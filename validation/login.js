@@ -5,7 +5,7 @@ const isEmpty = require('./is-empty');
 /**
  * Validates the input from the api/users/login route
  * @author Andrew Brooks
- * @param {any} data - The variable to check whether or not it is empty.
+ * @param {any} data - The inputted data to be validated
  * @return {Object} errors - The errors object containing the value of the specific error(s)
  * @return {boolean} isValid - A boolean value on whether or not there are errors.
  */

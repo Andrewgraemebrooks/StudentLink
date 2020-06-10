@@ -5,7 +5,7 @@ const isEmpty = require('./is-empty');
 /**
  * Validates the input from the api/profile route
  * @author Andrew Brooks
- * @param {any} data - The variable to check whether or not it is empty.
+ * @param {any} data - The inputted data to be validated
  * @return {Object} errors - The errors object containing the value of the specific error(s)
  * @return {boolean} isValid - A boolean value on whether or not there are errors.
  */
@@ -19,15 +19,24 @@ module.exports = function validateProfileInput(data) {
   data.bio = !isEmpty(data.bio) ? data.bio : '';
 
   // Adds an error if the handle is not the correct length
-  if (!validator.isEmpty(data.handle) && !validator.isLength(data.handle, { min: 2, max: 40 })) {
+  if (
+    !validator.isEmpty(data.handle) &&
+    !validator.isLength(data.handle, { min: 2, max: 40 })
+  ) {
     errors.handle = 'Handle needs to be between 2 and 4 characters';
   }
   // Adds an error if the university is not the correct length
-  if (!validator.isEmpty(data.university) && !validator.isLength(data.university, { min: 1, max: 40 })) {
+  if (
+    !validator.isEmpty(data.university) &&
+    !validator.isLength(data.university, { min: 1, max: 40 })
+  ) {
     errors.university = 'University needs to be between 1 and 100 characters';
   }
   // Adds an error if the bio is not the correct length
-  if (!validator.isEmpty(data.bio) && !validator.isLength(data.bio, { min: 1, max: 300 })) {
+  if (
+    !validator.isEmpty(data.bio) &&
+    !validator.isLength(data.bio, { min: 1, max: 300 })
+  ) {
     errors.bio = 'Bio needs to be between 1 and 300 characters';
   }
 
