@@ -1,9 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const passport = require('passport');
+const validator = require('validator');
 
 // Load Input Validation
 const validateGroupInput = require('../../validation/groups.js');
+const validateUpdateInput = require('../../validation/update-groups.js');
 
 // Load models
 const Group = require('../../models/Group');
@@ -124,6 +126,50 @@ router.get(
       })
       // Catch any errors and return them.
       .catch((err) => res.status(404).json(err));
+  }
+);
+
+// @route   POST api/groups/update
+// @desc    Update the group's information
+// @access  Private
+router.post(
+  '/update',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => {
+    // Get the errors object and the boolean value of whether the input is valid.
+    const { errors, isValid } = validateUpdateInput(req.body);
+
+    // If the input is not valid: send a 400 status and return the error object.
+    if (!isValid) {
+      return res.status(400).json(errors);
+    }
+
+    // Object to contain the new fields
+    const updatedFields = {};
+
+    // Check to see if handle exists so that two groups don't have the same handle
+    if (req.body.handle) {
+      Group.findOne({ handle: req.body.handle }).then((group) => {
+        if (group) {
+          errors.handle = 'That handle already exists';
+          res.status(400).json(errors);
+        }
+      });
+
+      // Add the handle to the updated fields object
+      updatedFields.handle = validator.trim(req.body.handle);
+    }
+
+    // Add the new name and description information, if inputted.
+    if (req.body.university) updatedFields.university = req.body.university;
+    if (req.body.bio) updatedFields.bio = req.body.bio;
+
+    // Update the group's information
+    Group.findOneAndUpdate(
+      { user: req.user.id },
+      { $set: updatedFields },
+      { new: true }
+    ).then((profile) => res.json(profile));
   }
 );
 
