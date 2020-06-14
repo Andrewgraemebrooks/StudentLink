@@ -226,4 +226,50 @@ router.post(
       );
   }
 );
+
+// @route   POST api/groups/leave/:handle
+// @desc    Logged in user leaves a group through the group's handle
+// @access  Private
+router.post(
+  '/leave/:handle',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => {
+    Profile.findOne({ user: req.user.id })
+      .then((profile) => {
+        Group.findOne({ handle: req.params.handle })
+          .then((group) => {
+            // Investigate whether the user is already a member.
+            // If the user isn't, return an error
+            if (!group.members.includes(profile.handle.toString())) {
+              res.json({
+                notamember: 'The user is not a member of the group',
+              });
+            } else {
+              // Remove user to group's member list
+              group.members.splice(profile.handle);
+              // Remove group to user's group list
+              profile.groups.splice(group.handle);
+              // Save profile
+              profile.save();
+              // Save group
+              group
+                .save()
+                // Return group as a json object
+                .then((group) => res.json(group))
+                // Catch any errors
+                .catch((err) => res.json(err));
+            }
+          })
+          .catch(() =>
+            // Return an error if the group is not found
+            res.json({ nogroupfound: 'No group found with that handle' })
+          );
+      })
+      .catch(() =>
+        // Return an error if the profile is not found.
+        res.json({ noprofilefound: 'No profile found with that id' })
+      );
+  }
+);
+
 module.exports = router;
