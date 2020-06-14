@@ -182,4 +182,48 @@ router.post(
   }
 );
 
+// @route   POST api/groups/join/:handle
+// @desc    Logged in user joins a group through the group's handle
+// @access  Private
+router.post(
+  '/join/:handle',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => {
+    Profile.findOne({ user: req.user.id })
+      .then((profile) => {
+        Group.findOne({ handle: req.params.handle })
+          .then((group) => {
+            // Investigate whether the user is already a member.
+            // If the user is, return an error
+            if (group.members.includes(profile.handle.toString())) {
+              res.json({
+                alreadymember: 'The user is already a member of the group',
+              });
+            } else {
+              // Add user to group's member list
+              group.members.addToSet(profile.handle);
+              // Add group to user's group list
+              profile.groups.addToSet(group.handle);
+              // Save profile
+              profile.save();
+              // Save group
+              group
+                .save()
+                // Return group as a json object
+                .then((group) => res.json(group))
+                // Catch any errors
+                .catch((err) => res.json(err));
+            }
+          })
+          .catch(() =>
+            // Return an error if the group is not found
+            res.json({ nogroupfound: 'No group found with that handle' })
+          );
+      })
+      .catch(() =>
+        // Return an error if the profile is not found.
+        res.json({ noprofilefound: 'No profile found with that id' })
+      );
+  }
+);
 module.exports = router;
