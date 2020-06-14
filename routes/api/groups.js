@@ -30,13 +30,22 @@ router.post(
     if (!isValid) {
       return res.status(400).json(errors);
     }
+
     // Create a new group object with the inputted information
     const newGroup = new Group({
       name: req.body.name,
       handle: req.body.handle,
       description: req.body.description,
       user: req.user.id,
+      members: [],
     });
+
+    // Find user's handle to add to the new group's member array
+    Profile.findOne({ user: req.user.id })
+      .then((profile) => {
+        newGroup.members.addToSet(profile.handle);
+      })
+      .catch((err) => console.log(`Error: ${err}`));
 
     Group.findOne({ handle: req.body.handle }).then((group) => {
       // If the handle already exists that means the group already exists, return an error
@@ -44,8 +53,8 @@ router.post(
         errors.handle = 'Group already exists';
         res.status(400).json(errors);
       } else {
-        // Save group
         newGroup
+          // Save group
           .save()
           // Return the group as a json object
           .then((group) => res.json(group))
@@ -55,7 +64,7 @@ router.post(
         // Add group to user's list of groups
         Profile.findOne({ user: req.user.id }).then((profile) => {
           profile.groups.addToSet(newGroup.handle);
-          profile.save().catch((err) => console.log(err));
+          profile.save().catch((err) => console.log(`Error: ${err}`));
         });
       }
     });

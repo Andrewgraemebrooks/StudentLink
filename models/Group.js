@@ -24,6 +24,10 @@ const GroupSchema = new Schema({
     type: String,
     required: true,
   },
+  // Members of the group
+  members: {
+    type: [String],
+  },
 });
 
 // Export the group model.
