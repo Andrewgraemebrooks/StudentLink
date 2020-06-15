@@ -140,11 +140,11 @@ router.get(
   }
 );
 
-// @route   POST api/groups/update
+// @route   POST api/groups/:handle/update
 // @desc    Update the group's information
 // @access  Private
 router.post(
-  '/update/:handle',
+  '/:handle/update',
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
     // Get the errors object and the boolean value of whether the input is valid.
