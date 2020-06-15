@@ -231,7 +231,6 @@ router.post(
   }
 );
 
-// We need three routes: Add friends, Delete friends, List all friends
 // @route   POST api/profile/friends/add/:handle
 // @desc    Add user as friends
 // @access  Private
@@ -261,7 +260,7 @@ router.post(
           // Add user to friends list
           profile.friends.addToSet(req.params.handle);
           // Save profile
-          profile.save()
+          profile.save();
           // Return updated profile
           res.status(200).json(profile);
         }
@@ -271,7 +270,7 @@ router.post(
 );
 
 // @route   POST api/profile/friends/remove/:handle
-// @desc    Add user as friends
+// @desc    Remove user from friends list
 // @access  Private
 router.post(
   '/friends/remove/:handle',
@@ -294,12 +293,12 @@ router.post(
         if (!profile.friends.includes(req.params.handle)) {
           res
             .status(400)
-            .json({ arenotfriends: 'You aren\'t friends with this user' });
+            .json({ arenotfriends: "You aren't friends with this user" });
         } else {
           // Remove friend from friends list
           profile.friends.splice(req.params.handle);
           // Save profile
-          profile.save()
+          profile.save();
           // Return updated profile
           res.status(200).json(profile);
         }
@@ -307,7 +306,19 @@ router.post(
       .catch((err) => res.json({ errorsearchingprofiles: err }));
   }
 );
-
-
+// @route   GET api/profile/friends/all
+// @desc    Display all friends of current user
+// @access  Private
+router.get(
+  '/friends/all',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => {
+    Profile.findOne({ user: req.user.id })
+      .then((profile) => {
+        res.status(200).json(profile.friends);
+      })
+      .catch((err) => res.json({ profilenotfound: err }));
+  }
+);
 
 module.exports = router;
