@@ -290,7 +290,7 @@ router.post(
   }
 );
 
-// @route   POST api/groups/chat/
+// @route   POST api/groups/:handle/chat/
 // @desc    Sends a messages to the group's chat
 // @access  Private
 router.post(
@@ -305,9 +305,9 @@ router.post(
       return res.status(400).json(errors);
     }
 
-    // Format the message so that the user's handle is appended to the message
     Profile.findOne({ user: req.user.id })
       .then((profile) => {
+        // Format the message so that the user's handle is appended to the message
         const formattedMessage = `${profile.handle} : ${req.body.message}`;
 
         // Find the group and add the message to the group chat
@@ -315,11 +315,9 @@ router.post(
           .then((group) => {
             // Make sure that the user is actually a member of the group
             if (!group.members.includes(profile.handle.toString())) {
-              res
-                .status(400)
-                .json({
-                  notamember: 'You need to be a member to participate in chat',
-                });
+              res.status(400).json({
+                notamember: 'You need to be a member to participate in chat',
+              });
             }
             group.chat.push(formattedMessage);
             group.save();
@@ -328,6 +326,32 @@ router.post(
           .catch((err) => res.json({ grouperror: err }));
       })
       .catch((err) => res.json({ profileerror: err }));
+  }
+);
+
+// @route   GET api/groups/chat/
+// @desc    Returns the group chat log
+// @access  Private
+router.get(
+  '/:handle/chat',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => {
+    // Find user's profile
+    Profile.findOne({user: req.user.id}).then(profile => {
+      // Find the group chat
+      Group.findOne({ handle: req.params.handle })
+      .then((group) => {
+        // Make sure user is a member of the group
+        if (!group.members.includes(profile.handle.toString())) {
+          res.status(400).json({
+            notamember: 'You need to be a member to view in chat',
+          });
+        } else {
+          res.status(200).json(group.chat);
+        }
+      })
+      .catch((err) => res.status(400).json({ grouperror: err }));
+    })
   }
 );
 
