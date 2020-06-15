@@ -28,6 +28,10 @@ const GroupSchema = new Schema({
   members: {
     type: [String],
   },
+  // Group's chat
+  chat: {
+    type: [String]
+  }
 });
 
 // Export the group model.

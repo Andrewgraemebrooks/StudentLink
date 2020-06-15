@@ -6,6 +6,7 @@ const validator = require('validator');
 // Load Input Validation
 const validateGroupInput = require('../../validation/groups.js');
 const validateUpdateInput = require('../../validation/update-groups.js');
+const validateMessageInput = require('../../validation/message.js');
 
 // Load models
 const Group = require('../../models/Group');
@@ -181,7 +182,7 @@ router.post(
             }
           });
         })
-        .catch((err) => res.json({updateprofileserror: err}));
+        .catch((err) => res.json({ updateprofileserror: err }));
     }
 
     // Add the new name and description information, if inputted.
@@ -195,7 +196,7 @@ router.post(
       { new: true }
     )
       .then((group) => res.json(group))
-      .catch((err) => res.json({updategrouperror: err}));
+      .catch((err) => res.json({ updategrouperror: err }));
   }
 );
 
@@ -286,6 +287,47 @@ router.post(
         // Return an error if the profile is not found.
         res.json({ noprofilefound: 'No profile found with that id' })
       );
+  }
+);
+
+// @route   POST api/groups/chat/
+// @desc    Sends a messages to the group's chat
+// @access  Private
+router.post(
+  '/:handle/chat',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => {
+    // Get the errors object and the boolean value of whether the input is valid.
+    const { errors, isValid } = validateMessageInput(req.body);
+
+    // If the input is not valid: send a 400 status and return the error object.
+    if (!isValid) {
+      return res.status(400).json(errors);
+    }
+
+    // Format the message so that the user's handle is appended to the message
+    Profile.findOne({ user: req.user.id })
+      .then((profile) => {
+        const formattedMessage = `${profile.handle} : ${req.body.message}`;
+
+        // Find the group and add the message to the group chat
+        Group.findOne({ handle: req.params.handle })
+          .then((group) => {
+            // Make sure that the user is actually a member of the group
+            if (!group.members.includes(profile.handle.toString())) {
+              res
+                .status(400)
+                .json({
+                  notamember: 'You need to be a member to participate in chat',
+                });
+            }
+            group.chat.push(formattedMessage);
+            group.save();
+            res.status(200).json(group);
+          })
+          .catch((err) => res.json({ grouperror: err }));
+      })
+      .catch((err) => res.json({ profileerror: err }));
   }
 );
 
