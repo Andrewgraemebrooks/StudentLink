@@ -19,17 +19,21 @@ const ProfileSchema = new Schema({
   university: {
     type: String,
     required: true,
-    max: 100
+    max: 100,
   },
   // Which groups they belong to
   groups: {
+    type: [String],
+  },
+  // Which friends they have
+  friends: {
     type: [String],
   },
   // There bio
   bio: {
     type: String,
     required: true,
-    max: 300
+    max: 300,
   },
   // The date that their account was created
   date: {
