@@ -139,35 +139,29 @@ router.post(
   '/unlike/:id',
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
-    Profile.findOne({ user: req.user.id }).then((profile) => {
-      Post.findById(req.params.id)
-        .then((post) => {
-          // Check if the user has already liked it
-          if (
-            post.likes.filter((like) => like.user.toString() === req.user.id)
-              .length === 0
-          ) {
-            return res
-              .status(400)
-              .json({ notliked: 'You have not yet liked this post' });
-          }
-
-          // Find the index of the like
-          const removeIndex = post.likes
-            .map((item) => item.user.toString())
-            .indexOf(req.user.id);
-
-          // Splice out of the likes array
-          posts.likes.splice(removeIndex, 1);
-
-          // Save
-          posts.save().then((post) => res.json(post));
-        })
-        // Catch any errors
-        .catch(
-          res.status(404).json({ nopostfound: 'No posts found with that ID' })
-        );
-    });
+    // Find the post
+    Post.findOne({ _id: req.params.id })
+      .then((post) => {
+        // Check if the user has already liked it
+        if (
+          post.likes.filter((like) => like.user.toString() === req.user.id)
+            .length = 0
+        ) {
+          return res
+            .status(400)
+            .json({ alreadyliked: 'User has not liked this post' });
+        }
+        // Remove user from likes array
+        post.likes.splice({ user: req.user.id });
+        // Save post
+        post
+          .save()
+          .then((post) => res.json(post))
+          .catch((err) => res.json(err));
+      })
+      .catch((err) =>
+        res.status(400).json({ error: `There was an error: ${err}` })
+      );
   }
 );
 
