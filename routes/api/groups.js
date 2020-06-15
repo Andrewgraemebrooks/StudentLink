@@ -201,11 +201,11 @@ router.post(
   }
 );
 
-// @route   POST api/groups/join/:handle
+// @route   POST api/groups/:handle/join
 // @desc    Logged in user joins a group through the group's handle
 // @access  Private
 router.post(
-  '/join/:handle',
+  '/:handle/join',
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
     Profile.findOne({ user: req.user.id })
@@ -246,11 +246,11 @@ router.post(
   }
 );
 
-// @route   POST api/groups/leave/:handle
+// @route   POST api/groups/:handle/leave
 // @desc    Logged in user leaves a group through the group's handle
 // @access  Private
 router.post(
-  '/leave/:handle',
+  '/:handle/leave',
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
     Profile.findOne({ user: req.user.id })
@@ -408,6 +408,52 @@ router.post(
         }
       });
     });
+  }
+);
+
+// @route   POST api/groups/:handle/kick
+// @desc    Kicks a user out of the group
+// @access  Private
+router.post(
+  '/:handle/kick',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => {
+    // Find current user's profile
+    Profile.findOne({ user: req.user.id })
+      .then((profile) => {
+        // Find the soon to be kicked user's group
+        Group.findOne({ handle: req.params.handle })
+          .then((group) => {
+            // Make sure user is member of group or not a moderator
+            if (
+              !group.members.includes(req.body.handle.toString()) ||
+              group.moderators.includes(req.body.handle.toString())
+            ) {
+              res.status(400).json({
+                memberormoderator:
+                  'The user is either not a member or is a moderator',
+              });
+            } else {
+              // Make sure that current user is a moderator
+              if (!group.moderators.includes(profile.handle.toString())) {
+                res.status(400).json({
+                  currentusernotmod: 'The current user is not a moderator',
+                });
+              } else {
+                // Remove user from the member's list
+                group.members.splice(req.body.handle);
+                group
+                  .save()
+                  .then(res.status(200).json(group))
+                  .catch((err) =>
+                    res.status(400).json({ groupresponseerror: err })
+                  );
+              }
+            }
+          })
+          .catch((err) => res.status(400).json({ groupfindingerror: err }));
+      })
+      .catch((err) => res.status(400).json({ profilefindingerror: err }));
   }
 );
 
