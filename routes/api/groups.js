@@ -41,10 +41,11 @@ router.post(
       members: [],
     });
 
-    // Find user's handle to add to the new group's member array
+    // Find user's handle to add to the new group's member and moderators arrays
     Profile.findOne({ user: req.user.id })
       .then((profile) => {
         newGroup.members.addToSet(profile.handle);
+        newGroup.moderators.addToSet(profile.handle);
       })
       .catch((err) => console.log(`Error: ${err}`));
 
@@ -337,21 +338,76 @@ router.get(
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
     // Find user's profile
-    Profile.findOne({user: req.user.id}).then(profile => {
+    Profile.findOne({ user: req.user.id }).then((profile) => {
       // Find the group chat
       Group.findOne({ handle: req.params.handle })
-      .then((group) => {
-        // Make sure user is a member of the group
-        if (!group.members.includes(profile.handle.toString())) {
+        .then((group) => {
+          // Make sure user is a member of the group
+          if (!group.members.includes(profile.handle.toString())) {
+            res.status(400).json({
+              notamember: 'You need to be a member to view in chat',
+            });
+          } else {
+            res.status(200).json(group.chat);
+          }
+        })
+        .catch((err) => res.status(400).json({ grouperror: err }));
+    });
+  }
+);
+
+// @route   POST api/groups/:handle/moderator
+// @desc    Add another user to the list of moderators
+// @access  Private
+router.post(
+  '/:handle/moderators',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => {
+    // Find current user's profile.
+    Profile.findOne({ user: req.user.id }).then((profile) => {
+      // Find group to add new moderator to
+      Group.findOne({ handle: req.params.handle }).then((group) => {
+        // Current user must be in the moderators list to add someone new
+        if (!group.moderators.includes(profile.handle.toString())) {
           res.status(400).json({
-            notamember: 'You need to be a member to view in chat',
+            notmoderator: 'You must be a moderator to add other moderators',
           });
         } else {
-          res.status(200).json(group.chat);
+          // User to be added must be a real user
+          Profile.findOne({ handle: req.body.handle }).then((newModerator) => {
+            // If user has been found then he is a real user
+            if (newModerator) {
+              // New moderator must be a member of the group
+              if (!group.members.includes(newModerator.handle.toString())) {
+                res.status(400).json({
+                  notmember: 'The new moderator must be a member of the group',
+                });
+              } else {
+                // New moderator must not already be a moderator
+                if (group.moderators.includes(newModerator.handle.toString())) {
+                  return res.status(400).json({
+                    newmoderatoralreadyone:
+                      'The new moderator is already a moderator',
+                  });
+                } else {
+                  // Add moderator to the set of moderators
+                  group.moderators.addToSet(req.body.handle);
+                  group
+                    .save()
+                    .then(res.status(200).json(group))
+                    .catch((err) => res.json({ newmoderatorerror: err }));
+                }
+              }
+            } else {
+              // New moderator could not be found as a new user.
+              res.status(400).json({
+                cannotfinduser: 'The user to be added cannot be found',
+              });
+            }
+          });
         }
-      })
-      .catch((err) => res.status(400).json({ grouperror: err }));
-    })
+      });
+    });
   }
 );
 

@@ -30,8 +30,12 @@ const GroupSchema = new Schema({
   },
   // Group's chat
   chat: {
-    type: [String]
-  }
+    type: [String],
+  },
+  // The moderators of the group
+  moderators: {
+    type: [String],
+  },
 });
 
 // Export the group model.
