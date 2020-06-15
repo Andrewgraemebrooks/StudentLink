@@ -232,11 +232,11 @@ router.post(
 );
 
 // We need three routes: Add friends, Delete friends, List all friends
-// @route   POST api/profile/add/:handle
+// @route   POST api/profile/friends/add/:handle
 // @desc    Add user as friends
 // @access  Private
 router.post(
-  '/add/:handle',
+  '/friends/add/:handle',
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
     // Need to validate that the friend exists
@@ -253,19 +253,61 @@ router.post(
     Profile.findOne({ user: req.user.id })
       .then((profile) => {
         // Verify that the user isn't already friends with the user
-        console.log(`profile.friends: ${profile.friends}`);
         if (profile.friends.includes(req.params.handle)) {
           res
             .status(400)
             .json({ alreadyfriends: 'You are already friends with this user' });
         } else {
+          // Add user to friends list
           profile.friends.addToSet(req.params.handle);
+          // Save profile
           profile.save()
+          // Return updated profile
           res.status(200).json(profile);
         }
       })
       .catch((err) => res.json({ errorsearchingprofiles: err }));
   }
 );
+
+// @route   POST api/profile/friends/remove/:handle
+// @desc    Add user as friends
+// @access  Private
+router.post(
+  '/friends/remove/:handle',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => {
+    // Need to validate that the friend exists
+    Profile.findOne({ handle: req.params.handle })
+      .then((profile) => {
+        // If no profile is found then the user does not exist, return an error
+        if (!profile) {
+          res.status(404).json({ usernotfound: 'That user does not exist' });
+        }
+      })
+      .catch((err) => res.json({ errorsearchingprofiles: err }));
+
+    // Find the current user's profile
+    Profile.findOne({ user: req.user.id })
+      .then((profile) => {
+        // Verify that the user is friends with the user
+        if (!profile.friends.includes(req.params.handle)) {
+          res
+            .status(400)
+            .json({ arenotfriends: 'You aren\'t friends with this user' });
+        } else {
+          // Remove friend from friends list
+          profile.friends.splice(req.params.handle);
+          // Save profile
+          profile.save()
+          // Return updated profile
+          res.status(200).json(profile);
+        }
+      })
+      .catch((err) => res.json({ errorsearchingprofiles: err }));
+  }
+);
+
+
 
 module.exports = router;
