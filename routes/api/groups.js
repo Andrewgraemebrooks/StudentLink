@@ -142,7 +142,7 @@ router.get(
 // @desc    Update the group's information
 // @access  Private
 router.post(
-  '/update',
+  '/update/:handle',
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
     // Get the errors object and the boolean value of whether the input is valid.
@@ -156,8 +156,9 @@ router.post(
     // Object to contain the new fields
     const updatedFields = {};
 
-    // Check to see if handle exists so that two groups don't have the same handle
     if (req.body.handle) {
+      // Clarification: req.params.handle = old handle; req.body.handle = new handle
+      // Investigate whether the new handle is already taken.
       Group.findOne({ handle: req.body.handle }).then((group) => {
         if (group) {
           errors.handle = 'That handle already exists';
@@ -167,6 +168,20 @@ router.post(
 
       // Add the handle to the updated fields object
       updatedFields.handle = validator.trim(req.body.handle);
+
+      // Update the group name for all users that are members
+      // Search all profiles
+      Profile.find()
+        .then((profiles) => {
+          profiles.forEach((profile) => {
+            if (profile.groups.includes(req.params.handle.toString())) {
+              profile.groups.splice(req.params.handle);
+              profile.groups.addToSet(updatedFields.handle);
+              profile.save();
+            }
+          });
+        })
+        .catch((err) => res.json({updateprofileserror: err}));
     }
 
     // Add the new name and description information, if inputted.
@@ -175,10 +190,12 @@ router.post(
 
     // Update the group's information
     Group.findOneAndUpdate(
-      { user: req.user.id },
+      { handle: req.params.handle },
       { $set: updatedFields },
       { new: true }
-    ).then((profile) => res.json(profile));
+    )
+      .then((group) => res.json(group))
+      .catch((err) => res.json({updategrouperror: err}));
   }
 );
 
