@@ -467,6 +467,7 @@ router.get(
   (req, res) => {
     // Find all the posts from that group
     Post.find({ group: req.params.handle })
+      .sort({ date: -1 })
       .then((groups) => {
         // If there any posts, return them
         if (groups.length > 0) res.status(200).json(groups);
