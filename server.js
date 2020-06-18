@@ -45,9 +45,9 @@ app.use('/api/users', users);
 
 /*
   Create a variable port so when the application is deployed it can run on the server's port
-  and when it is not deployed it runs on port 5000
+  and when it is not deployed it runs on port 5000 or 5001, if 5000 is taken
 */
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 5000 || 5001;
 
 // Listen for a connection on the port constant and log that it is in fact running.
 app.listen(port, () => console.log(`Server running on port ${port}`));
