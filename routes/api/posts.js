@@ -19,7 +19,7 @@ router.get('/test', (req, res) => res.json({ msg: 'Posts Works' }));
 // @desc    Create post
 // @access  Private
 router.post(
-  '/',
+  '/:handle',
   // Validate the user
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
@@ -31,18 +31,21 @@ router.post(
       return res.status(400).json(errors);
     }
 
-    // Create a new post object with the inputted information
-    const newPost = new Post({
-      text: req.body.text,
-      name: req.body.name,
-      user: req.user.id,
-    });
+    Profile.findOne({ user: req.user.id }).then((profile) => {
+      // Create a new post object with the inputted information
+      const newPost = new Post({
+        text: req.body.text,
+        name: req.body.name,
+        user: profile.handle,
+        group: req.params.handle,
+      });
 
-    // Save the new post
-    newPost
-      .save()
-      .then(res.status(200).json(newPost))
-      .catch((err) => console.log(err));
+      // Save the new post
+      newPost
+        .save()
+        .then(res.status(200).json(newPost))
+        .catch((err) => console.log(err));
+    });
   }
 );
 
@@ -106,29 +109,32 @@ router.post(
   // Authenticate the user
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
-    // Find the post
-    Post.findOne({ _id: req.params.id })
-      .then((post) => {
-        // Check if the user has already liked it
-        if (
-          post.likes.filter((like) => like.user.toString() === req.user.id)
-            .length > 0
-        ) {
-          return res
-            .status(400)
-            .json({ alreadyliked: 'User already liked this post' });
-        }
-        // Add user to likes array
-        post.likes.unshift({ user: req.user.id });
-        // Save post
-        post
-          .save()
-          .then((post) => res.json(post))
-          .catch((err) => res.json(err));
-      })
-      .catch((err) =>
-        res.status(400).json({ error: `There was an error: ${err}` })
-      );
+    // Find user's profile to get his/her handle
+    Profile.findOne({ user: req.user.id }).then((profile) => {
+      // Find the post
+      Post.findOne({ _id: req.params.id })
+        .then((post) => {
+          // Check if the user has already liked it
+          if (
+            post.likes.filter((like) => like.user.toString() === req.user.id)
+              .length > 0
+          ) {
+            return res
+              .status(400)
+              .json({ alreadyliked: 'User already liked this post' });
+          }
+          // Add user to likes array
+          post.likes.unshift({ user: profile.handle });
+          // Save post
+          post
+            .save()
+            .then((post) => res.json(post))
+            .catch((err) => res.json(err));
+        })
+        .catch((err) =>
+          res.status(400).json({ error: `There was an error: ${err}` })
+        );
+    });
   }
 );
 
@@ -144,8 +150,9 @@ router.post(
       .then((post) => {
         // Check if the user has already liked it
         if (
-          post.likes.filter((like) => like.user.toString() === req.user.id)
-            .length = 0
+          (post.likes.filter(
+            (like) => like.user.toString() === req.user.id
+          ).length = 0)
         ) {
           return res
             .status(400)
@@ -172,6 +179,28 @@ router.post(
   '/comment/:id',
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
+    Profile.findOne({ user: req.user.id }).then((profile) => {
+      // Find the post by its id
+      Post.findById(req.params.id)
+        .then((post) => {
+          // Create a new comment object to hold all of the inputted data
+          const newComment = {
+            text: req.body.text,
+            name: req.body.name,
+            user: profile.handle,
+          };
+
+          // Add to comments array
+          post.comments.unshift(newComment);
+
+          // Save
+          post.save().then((post) => res.json(post));
+        })
+        // Catch any errors
+        .catch((err) =>
+          res.status(404).json({ postnotfound: 'No posts found' })
+        );
+    });
     // Get the errors object and the boolean value of whether the input is valid.
     const { errors, isValid } = validatePostInput(req.body);
 
@@ -179,25 +208,6 @@ router.post(
     if (!isValid) {
       return res.status(400).json(errors);
     }
-
-    // Find the post by its id
-    Post.findById(req.params.id)
-      .then((post) => {
-        // Create a new comment object to hold all of the inputted data
-        const newComment = {
-          text: req.body.text,
-          name: req.body.name,
-          user: req.user.id,
-        };
-
-        // Add to comments array
-        post.comments.unshift(newComment);
-
-        // Save
-        post.save().then((post) => res.json(post));
-      })
-      // Catch any errors
-      .catch((err) => res.status(404).json({ postnotfound: 'No posts found' }));
   }
 );
 

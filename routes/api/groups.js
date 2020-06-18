@@ -11,6 +11,7 @@ const validateMessageInput = require('../../validation/message.js');
 // Load models
 const Group = require('../../models/Group');
 const Profile = require('../../models/Profile');
+const Post = require('../../models/Post');
 
 // @route   GET api/groups/test
 // @desc    Tests users route
@@ -454,6 +455,32 @@ router.post(
           .catch((err) => res.status(400).json({ groupfindingerror: err }));
       })
       .catch((err) => res.status(400).json({ profilefindingerror: err }));
+  }
+);
+
+// @route   GET api/groups/posts/
+// @desc    Gets all of the posts in the group
+// @access  Private
+router.get(
+  '/:handle/posts',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => {
+    // Find all the posts from that group
+    Post.find({ group: req.params.handle })
+      .then((groups) => {
+        // If there any posts, return them
+        if (groups.length > 0) res.status(200).json(groups);
+        // If there aren't any posts, return a useful error response
+        else {
+          res.status(404).json({
+            nopostsfound: "There weren't any posts found for this group",
+          });
+        }
+      })
+      // If there was an issue with the search for posts, return an error
+      .catch((err) => {
+        res.status(401).json({ findingpostserror: err });
+      });
   }
 );
 

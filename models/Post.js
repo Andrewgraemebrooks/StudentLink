@@ -4,10 +4,13 @@ const Schema = mongoose.Schema;
 
 // Create Schema
 const PostSchema = new Schema({
-  // User Id
+  // Group ID
+  group: {
+    type: String,
+  },
+  // User ID
   user: {
-    type: Schema.Types.ObjectId,
-    ref: 'users',
+    type: String,
   },
   // Text of the post
   text: {
@@ -23,8 +26,7 @@ const PostSchema = new Schema({
     {
       // User id
       user: {
-        type: Schema.Types.ObjectId,
-        ref: 'users',
+        type: String,
       },
     },
   ],
@@ -32,8 +34,7 @@ const PostSchema = new Schema({
     {
       // User id
       user: {
-        type: Schema.Types.ObjectId,
-        ref: 'users',
+        type: String,
       },
       // Text of the comment
       text: {
