@@ -11,7 +11,7 @@ const validateMessageInput = require('../../validation/message.js');
 // Load models
 const Group = require('../../models/Group');
 const Profile = require('../../models/Profile');
-const Post = require('../../models/Post');
+const TextPost = require('../../models/TextPost');
 
 // @route   GET api/groups/test
 // @desc    Tests users route
@@ -466,7 +466,7 @@ router.get(
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
     // Find all the posts from that group
-    Post.find({ group: req.params.handle })
+    TextPost.find({ group: req.params.handle })
       .sort({ date: -1 })
       .then((groups) => {
         // If there any posts, return them

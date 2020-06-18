@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 // Create Schema
-const PostSchema = new Schema({
+const TextPostSchema = new Schema({
   // Group ID
   group: {
     type: String,
@@ -60,4 +60,4 @@ const PostSchema = new Schema({
 });
 
 // Export the post model
-module.exports = Post = mongoose.model('post', PostSchema);
+module.exports = TextPost = mongoose.model('post', TextPostSchema);
