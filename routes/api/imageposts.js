@@ -3,7 +3,7 @@ const router = express.Router();
 const passport = require('passport');
 
 // Import post and profile models
-const TextPost = require('../../models/TextPost');
+const ImagePost = require('../../models/ImagePost');
 const Profile = require('../../models/Profile');
 
 // Validation
@@ -23,18 +23,10 @@ router.post(
   // Validate the user
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
-    // Get the errors object and the boolean value of whether the input is valid.
-    const { errors, isValid } = validatePostInput(req.body);
-
-    // If the input is not valid: send a 400 status and return the error object.
-    if (!isValid) {
-      return res.status(400).json(errors);
-    }
 
     Profile.findOne({ user: req.user.id }).then((profile) => {
       // Create a new post object with the inputted information
-      const newTextPost = new TextPost({
-        text: req.body.text,
+      const newTextPost = new ImagePost({
         user: profile.handle,
         group: req.params.handle,
       });
@@ -53,7 +45,7 @@ router.post(
 // @access  Public
 router.get('/:id', (req, res) => {
   // Get a specific post by its idea
-  TextPost.findById(req.params.id)
+  ImagePost.findById(req.params.id)
     .then((post) => res.json(post))
     .catch((err) =>
       res.status(404).json({ nopostfound: 'No posts found with that ID' })
@@ -70,7 +62,7 @@ router.delete(
     // Find a the profile that created the post
     Profile.findOne({ user: req.user.id }).then((profile) => {
       // Find the post by its id
-      TextPost.findById(req.params.id)
+      ImagePost.findById(req.params.id)
         .then((post) => {
           // Check if the post is owned by the user. If not, return an error
           if (post.user.toString() !== req.user.id) {
@@ -90,7 +82,7 @@ router.delete(
 );
 
 // @route   POST api/posts/like/:id
-// @desc    Like TextPost
+// @desc    Like ImagePost
 // @access  Private
 router.post(
   '/like/:id',
@@ -100,7 +92,7 @@ router.post(
     // Find user's profile to get his/her handle
     Profile.findOne({ user: req.user.id }).then((profile) => {
       // Find the post
-      TextPost.findOne({ _id: req.params.id })
+      ImagePost.findOne({ _id: req.params.id })
         .then((post) => {
           // Check if the user has already liked it
           if (
@@ -127,14 +119,14 @@ router.post(
 );
 
 // @route   POST api/posts/unlike/:id
-// @desc    Unlike TextPost
+// @desc    Unlike ImagePost
 // @access  Private
 router.post(
   '/unlike/:id',
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
     // Find the post
-    TextPost.findOne({ _id: req.params.id })
+    ImagePost.findOne({ _id: req.params.id })
       .then((post) => {
         // Check if the user has already liked it
         if (
@@ -169,7 +161,7 @@ router.post(
   (req, res) => {
     Profile.findOne({ user: req.user.id }).then((profile) => {
       // Find the post by its id
-      TextPost.findById(req.params.id)
+      ImagePost.findById(req.params.id)
         .then((post) => {
           // Create a new comment object to hold all of the inputted data
           const newComment = {
@@ -206,7 +198,7 @@ router.delete(
   '/comment/:id/:comment_id',
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
-    TextPost.findById(req.params.id)
+    ImagePost.findById(req.params.id)
       .then((post) => {
         // Check to see if comment exists
         if (
@@ -255,7 +247,7 @@ router.post(
     if (req.body.text) updatedFields.text = req.body.text;
 
     // Update the posts's information
-    TextPost.findOneAndUpdate(
+    ImagePost.findOneAndUpdate(
       { _id: req.params.id },
       { $set: updatedFields },
       { new: true }

@@ -13,7 +13,7 @@ const TextPostSchema = new Schema({
     type: String,
   },
   // Text of the post
-  text: {
+  image: {
     type: String,
     required: true,
   },
