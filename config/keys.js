@@ -1,4 +1,4 @@
 module.exports = {
-  mongoURI: 'mongodb://localhost:27017/finalyearproject',
+  mongoURI: 'mongodb+srv://admin:L7QfDFfeCOYJJaYS@cluster0-cnlxu.mongodb.net/<dbname>?retryWrites=true&w=majority',
   secretOrKey: 'secret',
 };
