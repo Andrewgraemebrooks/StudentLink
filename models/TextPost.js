@@ -4,11 +4,11 @@ const Schema = mongoose.Schema;
 
 // Create Schema
 const TextPostSchema = new Schema({
-  // Group ID
+  // Group Handle
   group: {
     type: String,
   },
-  // User ID
+  // User Handle
   user: {
     type: String,
   },
@@ -28,7 +28,7 @@ const TextPostSchema = new Schema({
   ],
   comments: [
     {
-      // User id
+      // User Handle
       user: {
         type: String,
       },
@@ -36,10 +36,6 @@ const TextPostSchema = new Schema({
       text: {
         type: String,
         required: true,
-      },
-      // Name of commenter (seperate so that if the account is deleted, the comment remains)
-      name: {
-        type: String,
       },
       // Date of the comment
       date: {

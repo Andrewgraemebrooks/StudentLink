@@ -7,6 +7,7 @@ const passport = require('passport');
 // Bring in the routes
 const groups = require('./routes/api/groups');
 const textposts = require('./routes/api/textposts');
+const imageposts = require('./routes/api/imageposts');
 const profile = require('./routes/api/profile');
 const users = require('./routes/api/users');
 
@@ -40,6 +41,7 @@ require('./config/passport')(passport);
 // Routes
 app.use('/api/groups', groups);
 app.use('/api/textposts', textposts);
+app.use('/api/imageposts', imageposts);
 app.use('/api/profile', profile);
 app.use('/api/users', users);
 
@@ -47,7 +49,7 @@ app.use('/api/users', users);
   Create a variable port so when the application is deployed it can run on the server's port
   and when it is not deployed it runs on port 5000 or 5001, if 5000 is taken
 */
-const port = process.env.PORT || 5000 || 5001;
+const port = 5000;
 
 // Listen for a connection on the port constant and log that it is in fact running.
 app.listen(port, () => console.log(`Server running on port ${port}`));
