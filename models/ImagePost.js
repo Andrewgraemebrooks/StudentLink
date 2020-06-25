@@ -3,23 +3,19 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 // Create Schema
-const PostSchema = new Schema({
-  // Group ID
+const ImagePostSchema = new Schema({
+  // Group Handle
   group: {
     type: String,
   },
-  // User ID
+  // User Handle
   user: {
     type: String,
   },
-  // Text of the post
-  text: {
+  // Image of the post
+  image: {
     type: String,
     required: true,
-  },
-  // Name of user
-  name: {
-    type: String,
   },
   // The likes of the user
   likes: [
@@ -32,7 +28,7 @@ const PostSchema = new Schema({
   ],
   comments: [
     {
-      // User id
+      // User Handle
       user: {
         type: String,
       },
@@ -40,10 +36,6 @@ const PostSchema = new Schema({
       text: {
         type: String,
         required: true,
-      },
-      // Name of commenter (seperate so that if the account is deleted, the comment remains)
-      name: {
-        type: String,
       },
       // Date of the comment
       date: {
@@ -60,4 +52,4 @@ const PostSchema = new Schema({
 });
 
 // Export the post model
-module.exports = Post = mongoose.model('post', PostSchema);
+module.exports = ImagePost = mongoose.model('post', ImagePostSchema);
