@@ -58,7 +58,7 @@ router.post('/register', (req, res) => {
             // Return the user as a json object
             .then((user) => res.json(user))
             // Catch any errors
-            .catch((err) => console.log(err));
+            .catch((err) => res.status(400).json(err));
         });
       });
     }
@@ -171,7 +171,7 @@ router.post(
         });
       });
     } else {
-      // Update the user's information
+      // Update the user's information if a password was not included.a
       User.findOneAndUpdate(
         { _id: req.user.id },
         { $set: updatedFields },

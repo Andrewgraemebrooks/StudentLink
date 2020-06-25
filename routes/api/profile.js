@@ -148,27 +148,6 @@ router.get('/handle/:handle', (req, res) => {
     .catch((err) => res.status(404).json(err));
 });
 
-// @route   GET api/profile/user/:user_id
-// @desc    Get profile by user ID
-// @access  Public
-router.get('/user/:user_id', (req, res) => {
-  // Search the database for the user by their id
-  Profile.findOne({ user: req.params.user_id })
-    // Populate the user's name with the right information
-    .populate('user', ['name'])
-    .then((profile) => {
-      // If no profile is found then return an error
-      if (!profile) {
-        errors.noprofile = 'There is no profile for this user';
-        res.status(404).json(errors);
-      }
-      // Return the profile as a json object
-      res.json(profile);
-    })
-    // Catch any errors and return them as a json object
-    .catch((err) => res.status(404).json(err));
-});
-
 // @route   DELETE api/profile
 // @desc    delete profile
 // @access  Private

@@ -11,7 +11,7 @@ const validateMessageInput = require('../../validation/message.js');
 // Load models
 const Group = require('../../models/Group');
 const Profile = require('../../models/Profile');
-const Post = require('../../models/Post');
+const Post = require('../../models/TextPost');
 
 // @route   GET api/groups/test
 // @desc    Tests users route
