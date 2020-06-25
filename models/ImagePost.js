@@ -52,4 +52,4 @@ const ImagePostSchema = new Schema({
 });
 
 // Export the post model
-module.exports = ImagePost = mongoose.model('post', ImagePostSchema);
+module.exports = ImagePost = mongoose.model('imagepost', ImagePostSchema);
