@@ -20,7 +20,7 @@ const TextPostSchema = new Schema({
   // The likes of the user
   likes: [
     {
-      // User id
+      // User Handle
       user: {
         type: String,
       },
