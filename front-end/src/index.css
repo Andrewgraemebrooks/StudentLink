@@ -11,3 +11,18 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.view {
+  padding-top: 8%;
+  position: relative;
+  background: url('https://source.unsplash.com/xEhhbS6dFsE/1920x1080') no-repeat;
+  background-size: 150%;
+  background-position: center;
+  height: 100vh;
+  margin-top: -24px;
+  margin-bottom: -50px;
+}
+
+.footer {
+  padding-top: 2.5%;
+}

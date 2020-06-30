@@ -1,12 +1,13 @@
 import React from 'react';
 import NavigationBar from './components/layout/NavigationBar';
+import Landing from './components/layout/Landing';
 import Footer from './components/layout/Footer';
 
 function App() {
   return (
-    <div className="App">
+    <div className='App'>
       <NavigationBar />
-      <h1>My React App</h1>
+      <Landing />
       <Footer />
     </div>
   );

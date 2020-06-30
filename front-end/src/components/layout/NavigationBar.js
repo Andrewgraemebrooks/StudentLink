@@ -17,7 +17,11 @@ class NavigationBar extends Component {
             <Nav.Link href='#profile'>Profile</Nav.Link>
           </Nav>
           <Form inline>
-            <FormControl type='text' placeholder='Search Profiles' className='mr-sm-2' />
+            <FormControl
+              type='text'
+              placeholder='Search Profiles'
+              className='mr-sm-2'
+            />
             <Button variant='outline-light'>Search</Button>
           </Form>
         </Navbar>
