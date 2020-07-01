@@ -2,7 +2,7 @@ import React from 'react';
 import NavigationBar from './components/layout/NavigationBar';
 import Landing from './components/layout/Landing';
 import Footer from './components/layout/Footer';
-import { BrowserRouter as Router, Route } from 'react-router-dom/BrowserRouter';
+import { BrowserRouter as Router, Route } from 'react-router-dom';
 
 function App() {
   return (
