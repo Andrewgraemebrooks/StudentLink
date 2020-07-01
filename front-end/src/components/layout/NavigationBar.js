@@ -4,17 +4,27 @@ import Nav from 'react-bootstrap/Nav';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import FormControl from 'react-bootstrap/FormControl';
+import { Link } from 'react-router-dom';
 
 class NavigationBar extends Component {
   render() {
     return (
       <div>
         <Navbar bg='dark' variant='dark'>
-          <Navbar.Brand href='#home'>StudentLink</Navbar.Brand>
+          <Link className='navbar-brand' to='/'>StudentLink</Link>
           <Nav className='mr-auto'>
-            <Nav.Link href='#loginregister'>Login / Register</Nav.Link>
-            <Nav.Link href='#groups'>Groups</Nav.Link>
-            <Nav.Link href='#profile'>Profile</Nav.Link>
+            <Link className='nav-link' to='/login'>
+              Login
+            </Link>
+            <Link className='nav-link' to='/register'>
+              Register
+            </Link>
+            <Link className='nav-link' to='/groups'>
+              Groups
+            </Link>
+            <Link className='nav-link' to='/profile'>
+              Profile
+            </Link>
           </Nav>
           <Form inline>
             <FormControl type='text' placeholder='Search Profiles' className='mr-sm-2' />
