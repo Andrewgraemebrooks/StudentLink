@@ -42,11 +42,6 @@ code {
   padding-top: 2.5%;
 }
 
-.register {
-  height: 100vh;
-  padding-top: 10%;
-}
-
 /* TABLET STYLES */
 
 @media screen and (min-width: 500px) {
