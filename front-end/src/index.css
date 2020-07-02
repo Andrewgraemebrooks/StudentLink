@@ -28,12 +28,13 @@ code {
   margin-bottom: -50px;
 }
 
-.register {
-  text-align: center;
-}
-
 .footer {
   padding-top: 2.5%;
+}
+
+.register {
+  height: 100vh;
+  padding-top: 10%;
 }
 
 /* TABLET STYLES */
