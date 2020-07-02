@@ -28,6 +28,16 @@ code {
   margin-bottom: -50px;
 }
 
+.register {
+  height: 100vh;
+  padding-top: 8%;
+}
+
+.login {
+  height: 100vh;
+  padding-top: 8%;
+}
+
 .footer {
   padding-top: 2.5%;
 }
