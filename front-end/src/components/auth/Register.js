@@ -1,6 +1,24 @@
 import React, { Component } from 'react';
 
 class Register extends Component {
+  constructor() {
+    super();
+    this.state = {
+      name: '',
+      email: '',
+      password: '',
+      password2: '',
+      errors: {},
+    };
+
+    this.onChange = this.onChange.bind(this);
+  }
+
+  onChange(e) {
+    this.setState({ [e.target.name]: e.target.value });
+  }
+
+
   render() {
     return (
       <div>
@@ -19,6 +37,8 @@ class Register extends Component {
                           id="name"
                           className="form-control input-sm"
                           placeholder="Name"
+                          value={this.state.name}
+                          onChange={this.onChange}
                         />
                       </div>
                     </div>
@@ -30,6 +50,8 @@ class Register extends Component {
                       id="email"
                       className="form-control input-sm"
                       placeholder="Email Address"
+                      value={this.state.email}
+                      onChange={this.onChange}
                     />
                   </div>
                   <div className="row">
@@ -41,6 +63,9 @@ class Register extends Component {
                           id="password"
                           className="form-control input-sm"
                           placeholder="Password"
+                          value={this.state.password}
+                          onChange={this.onChange}
+
                         />
                       </div>
                     </div>
@@ -52,6 +77,9 @@ class Register extends Component {
                           id="password_confirmation"
                           className="form-control input-sm"
                           placeholder="Confirm Password"
+                          value={this.state.password2}
+                          onChange={this.onChange}
+
                         />
                       </div>
                     </div>
