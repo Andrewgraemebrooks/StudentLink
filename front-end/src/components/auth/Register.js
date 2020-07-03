@@ -12,12 +12,25 @@ class Register extends Component {
     };
 
     this.onChange = this.onChange.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
   }
 
   onChange(e) {
     this.setState({ [e.target.name]: e.target.value });
   }
 
+  onSubmit(e) {
+    e.preventDefault();
+
+    const newUser = {
+      name: this.state.name,
+      email: this.state.email,
+      password: this.state.password,
+      password2: this.state.password2,
+    };
+
+    console.log(newUser);
+  }
 
   render() {
     return (
@@ -27,7 +40,7 @@ class Register extends Component {
             <div className="row">
               <div className="col-md-8 m-auto">
                 <h1 className="display-4 text-center">Signup to StudentLink</h1>
-                <form>
+                <form onSubmit={this.onSubmit}>
                   <div className="row">
                     <div className="col-xs-12 col-sm-12 col-md12">
                       <div className="form-group">
@@ -65,7 +78,6 @@ class Register extends Component {
                           placeholder="Password"
                           value={this.state.password}
                           onChange={this.onChange}
-
                         />
                       </div>
                     </div>
@@ -73,13 +85,12 @@ class Register extends Component {
                       <div className="form-group">
                         <input
                           type="password"
-                          name="password_confirmation"
-                          id="password_confirmation"
+                          name="password2"
+                          id="password2"
                           className="form-control input-sm"
                           placeholder="Confirm Password"
                           value={this.state.password2}
                           onChange={this.onChange}
-
                         />
                       </div>
                     </div>
