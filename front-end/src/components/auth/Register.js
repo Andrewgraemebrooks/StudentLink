@@ -3,6 +3,7 @@ import classnames from 'classnames';
 import { connect } from 'react-redux';
 import { registerUser } from '../../actions/authActions';
 import PropTypes from 'prop-types';
+import { withRouter } from 'react-router-dom';
 
 class Register extends Component {
   constructor() {
@@ -19,6 +20,12 @@ class Register extends Component {
     this.onSubmit = this.onSubmit.bind(this);
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.errors) {
+      this.setState({ errors: nextProps.errors });
+    }
+  }
+
   onChange(e) {
     this.setState({ [e.target.name]: e.target.value });
   }
@@ -33,12 +40,12 @@ class Register extends Component {
       password2: this.state.password2,
     };
 
-    this.props.registerUser(newUser);
+    this.props.registerUser(newUser, this.props.history);
   }
 
   render() {
     const { errors } = this.state;
-    const { user } = this.props.auth;
+
     return (
       <div>
         <div className="container">
@@ -75,7 +82,7 @@ class Register extends Component {
                       name="email"
                       id="email"
                       className={classnames('form-control input-sm', {
-                        // is-valid will only exist if errors.name exists
+                        // is-valid will only exist if errors.email exists
                         'is-invalid': errors.email,
                       })}
                       placeholder="Email Address"
@@ -95,7 +102,7 @@ class Register extends Component {
                           name="password"
                           id="password"
                           className={classnames('form-control input-sm', {
-                            // is-valid will only exist if errors.name exists
+                            // is-valid will only exist if errors.password exists
                             'is-invalid': errors.password,
                           })}
                           placeholder="Password"
@@ -117,7 +124,7 @@ class Register extends Component {
                           name="password2"
                           id="password2"
                           className={classnames('form-control input-sm', {
-                            // is-valid will only exist if errors.name exists
+                            // is-valid will only exist if errors.password2 exists
                             'is-invalid': errors.password2,
                           })}
                           placeholder="Confirm Password"
@@ -150,11 +157,12 @@ class Register extends Component {
 
 Register.propTypes = {
   registerUser: PropTypes.func.isRequired,
-  auth: PropTypes.object.isRequired, 
+  auth: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = (state) => ({
   auth: state.auth,
+  errors: state.errors,
 });
 
-export default connect(mapStateToProps, { registerUser })(Register);
+export default connect(mapStateToProps, { registerUser })(withRouter(Register));
