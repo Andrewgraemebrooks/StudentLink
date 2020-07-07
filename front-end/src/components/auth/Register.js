@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import axios from 'axios';
 import classnames from 'classnames';
+import { connect } from 'react-redux';
+import { registerUser } from '../../actions/authActions';
 
 class Register extends Component {
   constructor() {
@@ -31,10 +32,8 @@ class Register extends Component {
       password2: this.state.password2,
     };
 
-    axios
-      .post('/api/users/register', newUser)
-      .then((res) => console.log(res))
-      .catch((err) => this.setState({ errors: err.response.data }));
+    this.props.registerUser(newUser);
+
   }
 
   render() {
@@ -84,8 +83,8 @@ class Register extends Component {
                     />
                     {/* If there is an error, returns the error underneath the input field */}
                     {errors.email && (
-                          <div className="invalid-feedback">{errors.email} </div>
-                        )}
+                      <div className="invalid-feedback">{errors.email} </div>
+                    )}
                   </div>
                   <div className="row">
                     <div className="col-xs-6 col-sm-6 col-md-6">
@@ -104,7 +103,9 @@ class Register extends Component {
                         />
                         {/* If there is an error, returns the error underneath the input field */}
                         {errors.password && (
-                          <div className="invalid-feedback">{errors.password} </div>
+                          <div className="invalid-feedback">
+                            {errors.password}{' '}
+                          </div>
                         )}
                       </div>
                     </div>
@@ -124,7 +125,9 @@ class Register extends Component {
                         />
                         {/* If there is an error, returns the error underneath the input field */}
                         {errors.password2 && (
-                          <div className="invalid-feedback">{errors.password2} </div>
+                          <div className="invalid-feedback">
+                            {errors.password2}{' '}
+                          </div>
                         )}
                       </div>
                     </div>
@@ -143,4 +146,4 @@ class Register extends Component {
     );
   }
 }
-export default Register;
+export default connect(null, { registerUser })(Register);
