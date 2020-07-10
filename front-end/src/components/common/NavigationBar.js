@@ -5,8 +5,19 @@ import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import FormControl from 'react-bootstrap/FormControl';
 import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { logoutUser } from '../../actions/authActions';
+import { clearCurrentProfile } from '../../actions/profileActions';
+import Proptypes from 'prop-types';
 
 class NavigationBar extends Component {
+  onLogoutClick(e) {
+    e.preventDefault();
+    this.props.logoutUser();
+    this.props.clearCurrentProfile();
+    window.location.href = '/';
+  }
+
   render() {
     return (
       <div>
@@ -40,4 +51,13 @@ class NavigationBar extends Component {
   }
 }
 
-export default NavigationBar;
+NavigationBar.propTypes = {
+  logoutUser: Proptypes.func.isRequired,
+  auth: Proptypes.object.isRequired,
+};
+
+const mapStateToProps = (state) => ({
+  auth: state.auth,
+});
+
+export default connect(mapStateToProps, { logoutUser, clearCurrentProfile })(NavigationBar);
