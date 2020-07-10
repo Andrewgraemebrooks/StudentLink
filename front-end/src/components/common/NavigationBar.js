@@ -15,7 +15,6 @@ class NavigationBar extends Component {
     e.preventDefault();
     this.props.logoutUser();
     this.props.clearCurrentProfile();
-    window.location.href = '/';
   }
 
   render() {

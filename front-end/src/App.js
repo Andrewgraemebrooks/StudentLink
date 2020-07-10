@@ -5,13 +5,14 @@ import Footer from './components/common/Footer';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import Profile from './components/profile/Profile';
-import { BrowserRouter as Router, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import store from './store';
 import jwt_decode from 'jwt-decode';
 import setAuthToken from './utils/setAuthToken';
 import { setCurrentUser, logoutUser } from './actions/authActions';
 import { clearCurrentProfile } from './actions/profileActions';
+import PrivateRoute from './components/common/PrivateRoute';
 
 // Check for token
 if (localStorage.jwtToken) {
@@ -22,14 +23,13 @@ if (localStorage.jwtToken) {
   // Set user and isAuthenticated
   store.dispatch(setCurrentUser(decoded));
   // Clear current profile
-  store.dispatch(clearCurrentProfile())
+  store.dispatch(clearCurrentProfile());
   // Check for expired token
   const currentTime = Date.now() / 1000;
   if (decoded.exp < currentTime) {
     store.dispatch(logoutUser());
     window.location.href = '/login';
   }
-
 }
 
 function App() {
@@ -42,7 +42,9 @@ function App() {
           <div className="container">
             <Route exact path="/login" component={Login} />
             <Route exact path="/register" component={Register} />
-            <Route exact path="/profile" component={Profile} />
+            <Switch>
+              <PrivateRoute exact path="/profile" component={Profile} />
+            </Switch>
           </div>
           <Footer />
         </div>
