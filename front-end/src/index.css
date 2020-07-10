@@ -14,8 +14,8 @@ code {
 
 .view {
   padding-top: 8%;
-  position: relative;
-  background: url('https://source.unsplash.com/xEhhbS6dFsE/1920x1080') no-repeat;
+  position: static;
+  background: url('./images/maxwell-nelson-vbj1mKlJBzg-unsplash.jpg') no-repeat;
   background-size: 150%;
   background-position: center;
   height: 100vh;
