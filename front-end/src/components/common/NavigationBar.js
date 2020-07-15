@@ -57,7 +57,7 @@ class NavigationBar extends Component {
           <Form inline>
             <FormControl
               type="text"
-              placeholder="Search Profiles"
+              placeholder="Search Groups"
               className="mr-sm-2"
             />
             <Button variant="outline-light">Search</Button>
