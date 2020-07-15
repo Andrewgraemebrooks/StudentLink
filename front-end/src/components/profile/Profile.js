@@ -21,12 +21,23 @@ class Profile extends Component {
     } else {
       // Check if logged in user has profile data
       if (Object.keys(profile).length > 0) {
-        profileContent = <h2>Display Profile</h2>;
+        profileContent = (
+          <div className="text-center">
+            <div className="bio">
+              <h1 class="display-4">Handle</h1>
+              <p className="lead">{profile.handle}</p>
+              <h1 class="display-4">Bio</h1>
+              <p className="lead">{profile.bio}</p>
+              <h1 class="display-4">University</h1>
+              <p className="lead">{profile.university}</p>
+            </div>
+          </div>
+        );
       } else {
         // User is logged in but has no profile
         profileContent = (
           <div>
-            <p className="lead text-muted">Welcome {user.name} </p>
+            <p className="lead text-muted text-center">Welcome {user.name} </p>
             <p>You have not yet set up a profile, please add some info</p>
             <Link to="/create-profile" className="btn btn-lg btn-danger">
               Create Profile
@@ -37,11 +48,11 @@ class Profile extends Component {
     }
 
     return (
-      <div className="Profile">
+      <div className="profile text-center">
         <div className="container">
           <div className="row">
             <div className="col-md-12">
-              <h1 className="display-4">Profile</h1>
+              <h1 className="display-2">Profile</h1>
               {profileContent}
             </div>
           </div>

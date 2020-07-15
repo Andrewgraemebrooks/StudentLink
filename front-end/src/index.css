@@ -43,6 +43,11 @@ code {
   padding-top: 8%;
 }
 
+.profile {
+  height: 100vh;
+  padding-top: 8%;
+}
+
 .footer {
   padding-top: 2.5%;
 }
