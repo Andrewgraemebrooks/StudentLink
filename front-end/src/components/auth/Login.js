@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { loginUser } from '../../actions/userActions';
+import { loginUser } from '../../actions/authActions';
 import classnames from 'classnames';
 
 class Login extends Component {
@@ -18,13 +18,13 @@ class Login extends Component {
   }
 
   componentDidMount() {
-    if (this.props.user.isAuthenticated) {
+    if (this.props.auth.isAuthenticated) {
       this.props.history.push('/profile');
     }
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.user.isAuthenticated) {
+    if (nextProps.auth.isAuthenticated) {
       this.props.history.push('/profile');
     }
 
@@ -125,13 +125,13 @@ class Login extends Component {
 
 Login.propTypes = {
   loginUser: PropTypes.func.isRequired,
-  user: PropTypes.object.isRequired,
+  auth: PropTypes.object.isRequired,
   errors: PropTypes.object.isRequired,
 };
 
-const addStateToProps = (state) => ({
-  user: state.user,
+const mapStateToProps = (state) => ({
+  auth: state.auth,
   errors: state.errors,
 });
 
-export default connect(addStateToProps, { loginUser })(Login);
+export default connect(mapStateToProps, { loginUser })(Login);

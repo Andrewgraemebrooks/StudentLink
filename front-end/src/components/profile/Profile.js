@@ -11,7 +11,7 @@ class Profile extends Component {
   }
 
   render() {
-    const { user } = this.props.user;
+    const { user } = this.props.auth;
     const { profile, loading } = this.props.profile;
 
     let profileContent;
@@ -62,15 +62,15 @@ class Profile extends Component {
   }
 }
 
-const addStateToProps = (state) => ({
+const mapStateToProps = (state) => ({
   profile: state.profile,
-  user: state.user,
+  auth: state.auth,
 });
 
 Profile.propTypes = {
   getCurrentProfile: PropTypes.func.isRequired,
-  user: PropTypes.object.isRequired,
+  auth: PropTypes.object.isRequired,
   profile: PropTypes.object.isRequired,
 };
 
-export default connect(addStateToProps, { getCurrentProfile })(Profile);
+export default connect(mapStateToProps, { getCurrentProfile })(Profile);

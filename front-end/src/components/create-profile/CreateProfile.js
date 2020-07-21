@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { withRouter } from 'react-router-dom';
-import { createProfile } from '../../actions/profileActions';
+import {createProfile} from '../../actions/profileActions';
 
 class CreateProfile extends Component {
   constructor(props) {
@@ -128,11 +128,11 @@ CreateProfile.propTypes = {
   errors: PropTypes.object.isRequired,
 };
 
-const addStateToProps = (state) => ({
+const mapStateToProps = (state) => ({
   profile: state.profile,
   errors: state.errors,
 });
 
-export default connect(addStateToProps, { createProfile })(
+export default connect(mapStateToProps, { createProfile })(
   withRouter(CreateProfile)
 );

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { GET_ERRORS, SET_CURRENT_USER } from './actionTypes';
+import { GET_ERRORS, SET_CURRENT_USER } from './types';
 import setAuthToken from '../utils/setAuthToken';
 import jwt_decode from 'jwt-decode';
 
@@ -16,12 +16,12 @@ export const registerUser = (userData, history) => (dispatch) => {
     );
 };
 
-// Login
+// Login - Get User Token
 export const loginUser = (userData) => (dispatch) => {
   axios
     .post('/api/users/login', userData)
     .then((res) => {
-      // Save token to local storage
+      // Save to local storage
       const { token } = res.data;
       localStorage.setItem('jwtToken', token);
 
@@ -40,7 +40,7 @@ export const loginUser = (userData) => (dispatch) => {
     );
 };
 
-// Set the current user as the logged in one
+// Set logged in user
 export const setCurrentUser = (decoded) => {
   return {
     type: SET_CURRENT_USER,
@@ -50,10 +50,10 @@ export const setCurrentUser = (decoded) => {
 
 // Log user out
 export const logoutUser = () => (dispatch) => {
-  // Remove token from local storage
+  // Remove token from localstorage
   localStorage.removeItem('jwtToken');
-  // Remove auth header so the token is no longer in storage
+  // Remove auth header for future requests
   setAuthToken(false);
-  // Set current user to an empty object (this will set isAuthenticated to false)
+  // Set current user to {} which will set isAuthenticated to false
   dispatch(setCurrentUser({}))
 };
