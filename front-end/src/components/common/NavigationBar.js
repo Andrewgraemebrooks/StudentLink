@@ -6,7 +6,7 @@ import Button from 'react-bootstrap/Button';
 import FormControl from 'react-bootstrap/FormControl';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { logoutUser } from '../../actions/authActions';
+import { logoutUser } from '../../actions/userActions';
 import { clearCurrentProfile } from '../../actions/profileActions';
 import Proptypes from 'prop-types';
 
@@ -18,7 +18,7 @@ class NavigationBar extends Component {
   }
 
   render() {
-    const { isAuthenticated } = this.props.auth;
+    const { isAuthenticated } = this.props.user;
 
     const authLinks = (
       <Nav className="mr-auto">
@@ -70,11 +70,11 @@ class NavigationBar extends Component {
 
 NavigationBar.propTypes = {
   logoutUser: Proptypes.func.isRequired,
-  auth: Proptypes.object.isRequired,
+  user: Proptypes.object.isRequired,
 };
 
 const addStateToProps = (state) => ({
-  auth: state.auth,
+  user: state.user,
 });
 
 export default connect(addStateToProps, { logoutUser, clearCurrentProfile })(

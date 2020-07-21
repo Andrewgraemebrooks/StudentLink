@@ -11,7 +11,7 @@ class Profile extends Component {
   }
 
   render() {
-    const { user } = this.props.auth;
+    const { user } = this.props.user;
     const { profile, loading } = this.props.profile;
 
     let profileContent;
@@ -64,12 +64,12 @@ class Profile extends Component {
 
 const addStateToProps = (state) => ({
   profile: state.profile,
-  auth: state.auth,
+  user: state.user,
 });
 
 Profile.propTypes = {
   getCurrentProfile: PropTypes.func.isRequired,
-  auth: PropTypes.object.isRequired,
+  user: PropTypes.object.isRequired,
   profile: PropTypes.object.isRequired,
 };
 

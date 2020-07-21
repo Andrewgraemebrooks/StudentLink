@@ -18,13 +18,13 @@ class Login extends Component {
   }
 
   componentDidMount() {
-    if (this.props.auth.isAuthenticated) {
+    if (this.props.user.isAuthenticated) {
       this.props.history.push('/profile');
     }
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.auth.isAuthenticated) {
+    if (nextProps.user.isAuthenticated) {
       this.props.history.push('/profile');
     }
 
@@ -125,12 +125,12 @@ class Login extends Component {
 
 Login.propTypes = {
   loginUser: PropTypes.func.isRequired,
-  auth: PropTypes.object.isRequired,
+  user: PropTypes.object.isRequired,
   errors: PropTypes.object.isRequired,
 };
 
 const addStateToProps = (state) => ({
-  auth: state.auth,
+  user: state.user,
   errors: state.errors,
 });
 
