@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import { GET_PROFILE, PROFILE_LOADING, CLEAR_CURRENT_PROFILE, GET_ERRORS } from './types';
+import { GET_PROFILE, PROFILE_LOADING, CLEAR_CURRENT_PROFILE, GET_ERRORS } from './actionTypes';
 
 // Get current profile
 export const getCurrentProfile = () => (dispatch) => {
@@ -21,21 +21,21 @@ export const getCurrentProfile = () => (dispatch) => {
     );
 };
 
-// Profile loading
+// Set profile to loading
 export const setProfileLoading = () => {
   return {
     type: PROFILE_LOADING,
   };
 };
 
-// Clear Profile
+// Clear The Profile
 export const clearCurrentProfile = () => {
   return {
     type: CLEAR_CURRENT_PROFILE,
   };
 };
 
-// Create Profile
+// Create The Profile
 export const createProfile = (profileData, history) => (dispatch) => {
   axios
     .post('/api/profile', profileData)

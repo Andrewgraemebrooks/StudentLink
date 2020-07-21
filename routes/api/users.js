@@ -17,27 +17,27 @@ const User = require('../../models/User');
 // @route   GET api/users/test
 // @desc    Tests users route
 // @access  Public
-router.get('/test', (req, res) => res.json({ msg: 'Users Works' }));
+router.get('/test', (req, res) => res.json({ msg: 'Users Route Works' }));
 
 // @route   POST api/users/register
 // @desc    Register User
 // @access  Public
 router.post('/register', (req, res) => {
   // Get the errors object and the boolean value of whether the input is valid.
-  const { errors, isValid } = validateRegisterInput(req.body);
+  const { errors, noErrors } = validateRegisterInput(req.body);
 
   // If the input is not valid: send a 400 status and return the error object.
-  if (!isValid) {
+  if (!noErrors) {
     return res.status(400).json(errors);
   }
 
-  // Find the user using the user's email.
+  // Find the user
   User.findOne({ email: req.body.email }).then((user) => {
-    // If the user's email has been found then that means the account already exists
+    // Return an error if the email is already in use
     if (user) {
       return res.status(400).json({ email: 'Email already exists' });
     } else {
-      // Create a new user with the request's information
+      // New object to store the user's information
       const newUser = new User({
         name: req.body.name,
         // Normalise the email to all lowercase
@@ -47,17 +47,17 @@ router.post('/register', (req, res) => {
         password: req.body.password,
       });
 
-      // Hash the password and set the user's password to the new hashed password
+      // Generate an encrypted password for the user
       bcrypt.genSalt(10, (err, salt) => {
         bcrypt.hash(newUser.password, salt, (err, hash) => {
           if (err) throw err;
           newUser.password = hash;
-          // Save the new user to the document
+          // Save new user
           newUser
             .save()
-            // Return the user as a json object
+            // Return user 
             .then((user) => res.json(user))
-            // Catch any errors
+            // Return any errors
             .catch((err) => res.status(400).json(err));
         });
       });
@@ -70,32 +70,29 @@ router.post('/register', (req, res) => {
 // @access  Public
 router.post('/login', (req, res) => {
   // Get the errors object and the boolean value of whether the input is valid.
-  const { errors, isValid } = validateLoginInput(req.body);
+  const { errors, noErrors } = validateLoginInput(req.body);
 
   // If the input is not valid: send a 400 status and return the error object.
-  if (!isValid) {
+  if (!noErrors) {
     return res.status(400).json(errors);
   }
 
-  // Create a const containing the email and password of the user.
   const email = req.body.email;
   const password = req.body.password;
 
-  // Find user by email
+  // Find user
   User.findOne({ email }).then((user) => {
-    // If email is not found than the user does not exist
+    // Return an error if the email is not found
     if (!user) {
       errors.email = 'User Not Found';
       return res.status(404).json(errors);
     }
 
-    // If the user is found then check the password
+    // Compare passwords
     bcrypt.compare(password, user.password).then((isMatch) => {
       if (isMatch) {
-        // The password is correct.
-        // Create the JWT payload for authentication.
+        // If the password is correct, create the JWT payload for authentication.
         const payload = { id: user.id, name: user.name };
-        // Sign the token.
         jwt.sign(
           payload,
           keys.secretOrKey,
@@ -108,7 +105,7 @@ router.post('/login', (req, res) => {
           }
         );
       } else {
-        // If password is incorrect, put the status as 400 and return the error.
+        // Return error if password is incorrect
         errors.password = 'Password incorrect';
         return res.status(400).json(errors);
       }
@@ -121,7 +118,6 @@ router.post('/login', (req, res) => {
 // @access  Private
 router.get(
   '/current',
-  // Authenticate the user if it passes, return the id, name, and email of the current user.
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
     res.json({
@@ -140,10 +136,10 @@ router.post(
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
     // Get the errors object and the boolean value of whether the input is valid.
-    const { errors, isValid } = validateUpdateInput(req.body);
+    const { errors, noErrors } = validateUpdateInput(req.body);
 
     // If the input is not valid: send a 400 status and return the error object.
-    if (!isValid) {
+    if (!noErrors) {
       return res.status(400).json(errors);
     }
 
@@ -157,12 +153,12 @@ router.post(
     }
 
     if (req.body.password) {
-      // Hash the password and set the user's password to the new hashed password
+      // Encrypt the new password
       bcrypt.genSalt(10, (err, salt) => {
         bcrypt.hash(req.body.password, salt, (err, hash) => {
           if (err) throw err;
           updatedFields.password = hash;
-          // Update the user's information
+          // Update the user
           User.findOneAndUpdate(
             { _id: req.user.id },
             { $set: updatedFields },
@@ -171,7 +167,7 @@ router.post(
         });
       });
     } else {
-      // Update the user's information if a password was not included.a
+      // Update the user if a password was not included
       User.findOneAndUpdate(
         { _id: req.user.id },
         { $set: updatedFields },

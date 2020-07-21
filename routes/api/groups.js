@@ -16,7 +16,7 @@ const TextPost = require('../../models/TextPost');
 // @route   GET api/groups/test
 // @desc    Tests users route
 // @access  Public
-router.get('/test', (req, res) => res.json({ msg: 'Groups Works' }));
+router.get('/test', (req, res) => res.json({ msg: 'Groups Route Works' }));
 
 // @route   POST api/groups
 // @desc    The user creates a group
@@ -25,15 +25,15 @@ router.post(
   '/',
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
-    // Get the errors object and the boolean value of whether the input is valid.
-    const { errors, isValid } = validateGroupInput(req.body);
+    // Check if there were any validation errors
+    const { errors, noErrors } = validateGroupInput(req.body);
 
-    // If the input is not valid: send a 400 status and return the error object.
-    if (!isValid) {
+    // If there were errors, return the errors in a json object with a bad request status code
+    if (!noErrors) {
       return res.status(400).json(errors);
     }
 
-    // Create a new group object with the inputted information
+    // Create a new group object to contain all of the new information for the group
     const newGroup = new Group({
       name: req.body.name,
       handle: req.body.handle,
@@ -42,18 +42,23 @@ router.post(
       members: [],
     });
 
-    // Find user's handle to add to the new group's member and moderators arrays
+    // Find the group's creator's profile and add their handle to the list of the group's members and moderators
     Profile.findOne({ user: req.user.id })
       .then((profile) => {
         newGroup.members.addToSet(profile.handle);
         newGroup.moderators.addToSet(profile.handle);
       })
-      .catch((err) => console.log(`Error: ${err}`));
+      // If there was an error finding the profile, return the error in a json object with a not found status code
+      .catch((err) =>
+        res.status(404).json({
+          findingProfileError: `There was an error finding the user's profile: ${err}`,
+        })
+      );
 
     Group.findOne({ handle: req.body.handle }).then((group) => {
-      // If the handle already exists that means the group already exists, return an error
+      // If the handle was already taken by another group, return the error in a json object with a bad request status code
       if (group) {
-        errors.handle = 'Group already exists';
+        errors.handle = 'Handle taken by another group already exists';
         res.status(400).json(errors);
       } else {
         newGroup
@@ -61,13 +66,22 @@ router.post(
           .save()
           // Return the group as a json object
           .then((group) => res.json(group))
-          // Catch any errors
-          .catch((err) => console.log(err));
+          // If there was an error saving the group to the database, return the error in a json object with a bad request status code
+          .catch((err) =>
+            res.status(400).json({
+              savingGroupError: `There was an error saving the new group: ${err}`,
+            })
+          );
 
         // Add group to user's list of groups
         Profile.findOne({ user: req.user.id }).then((profile) => {
           profile.groups.addToSet(newGroup.handle);
-          profile.save().catch((err) => console.log(`Error: ${err}`));
+          profile.save().catch((err) =>
+            // If there was an error adding the group's handle to the profile's list of joined groups, return the error in a json object with a bad request status code.
+            res.status(400).json({
+              addingGroupToProfileError: `There was an error adding the group's handle to the user's profile: ${err}`,
+            })
+          );
         });
       }
     });
@@ -85,33 +99,55 @@ router.delete(
     Group.findOne({ handle: req.params.handle })
       .then((group) => {
         // Delete the group
-        Group.findOneAndRemove({ _id: group._id }).then(
-          // Remove group from all users' profile
-          // Find all profiles
-          Profile.find().then((profiles) => {
-            // Loop through each profile
-            profiles.forEach((profile) => {
-              // Loop through each group
-              profile.groups.forEach((group) => {
-                // If the group is found then remove it
-                if (group === req.params.handle) {
-                  // Get the index of the group to be deleted
-                  const index = profile.groups.indexOf(group);
-                  // Remove the group from the profile
-                  profile.groups.splice(index, 1);
-                  // Save the modified profile and return a success response
-                  profile.save().then(res.status(200).json({ success: true }));
-                }
-              });
-            });
-          })
-        );
+        Group.findOneAndRemove({ _id: group._id })
+          .then(
+            // Remove group from all users' profile
+            // Find all profiles
+            Profile.find()
+              .then((profiles) => {
+                // Loop through each profile
+                profiles.forEach((profile) => {
+                  // Loop through each group
+                  profile.groups.forEach((group) => {
+                    // If the group is found then remove it
+                    if (group === req.params.handle) {
+                      // Get the index of the group to be deleted
+                      const index = profile.groups.indexOf(group);
+                      // Remove the group from the profile
+                      profile.groups.splice(index, 1);
+                      // Save the modified profile and return a success response
+                      profile
+                        .save()
+                        .then(res.status(200).json({ success: true }))
+                        // If there was an error saving the profile, return the error in a json object with a bad request status code.
+                        .catch((err) =>
+                          res.status(400).json({
+                            savingProfileError: `There was an error saving the profile: ${err}`,
+                          })
+                        );
+                    }
+                  });
+                });
+              })
+              // If there was an error finding all profiles, return the error in a json object with a not found status code.
+              .catch((err) =>
+                res.status(404).json({
+                  findingAllProfilesError: `There was an error finding all profiles: ${err}`,
+                })
+              )
+          )
+          // If there was an error removing the group, return the error in a json object with a bad request status code.
+          .catch((err) =>
+            res.status(400).json({
+              removingGroupError: `There was an error removing the group: ${err}`,
+            })
+          );
       })
-      // Catch in case no posts are found with that id.
-      .catch(() =>
-        res
-          .status(404)
-          .json({ groupnotfound: 'No group found with that handle' })
+      // If there was an error finding the group, return the error in a json object with a not found status code.
+      .catch((err) =>
+        res.status(404).json({
+          findingGroupError: `There was an error finding the group: ${err}`,
+        })
       );
   }
 );
@@ -128,16 +164,20 @@ router.get(
     // Use the find method to get all the groups
     Group.find()
       .then((groups) => {
-        // If there aren't any groups, return an error
+        // If the user has not joined any groups, return the error in a json object with a bad request status code.
         if (!groups) {
           errors.nogroups = 'This user has not joined any groups';
-          return res.status(404).json(errors);
+          return res.status(400).json(errors);
         }
         // Return the groups as a json object
         res.json(groups);
       })
-      // Catch any errors and return them.
-      .catch((err) => res.status(404).json(err));
+      // If there was an error finding all groups, return the error in a json object with a not found status code.
+      .catch((err) =>
+        res.status(404).json({
+          findingAllGroupsError: `There was an error finding all groups: ${err}`,
+        })
+      );
   }
 );
 
@@ -148,11 +188,11 @@ router.post(
   '/:handle/update',
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
-    // Get the errors object and the boolean value of whether the input is valid.
-    const { errors, isValid } = validateUpdateInput(req.body);
+    // Check if there were any validation errors
+    const { errors, noErrors } = validateGroupInput(req.body);
 
-    // If the input is not valid: send a 400 status and return the error object.
-    if (!isValid) {
+    // If there were errors, return the errors in a json object with a bad request status code
+    if (!noErrors) {
       return res.status(400).json(errors);
     }
 
@@ -162,12 +202,20 @@ router.post(
     if (req.body.handle) {
       // Clarification: req.params.handle = old handle; req.body.handle = new handle
       // Investigate whether the new handle is already taken.
-      Group.findOne({ handle: req.body.handle }).then((group) => {
-        if (group) {
-          errors.handle = 'That handle already exists';
-          res.status(400).json(errors);
-        }
-      });
+      Group.findOne({ handle: req.body.handle })
+        .then((group) => {
+          // If a group is found then the handle is already taken, return the error in a json object with a bad request status code.
+          if (group) {
+            errors.handle = 'That handle is already taken';
+            res.status(400).json(errors);
+          }
+        })
+        // If there was an error finding all groups, return the error in a json object with a not found status code.
+        .catch((err) =>
+          res.status(404).json({
+            findingAllGroupsError: `There was an error finding all groups: ${err}`,
+          })
+        );
 
       // Add the handle to the updated fields object
       updatedFields.handle = validator.trim(req.body.handle);
@@ -184,7 +232,12 @@ router.post(
             }
           });
         })
-        .catch((err) => res.json({ updateprofileserror: err }));
+        // If there was an error finding all profiles, return the error in a json object with a not found status code.
+        .catch((err) =>
+          res.status(404).json({
+            findingAllProfilesError: `There was an error finding all profiles: ${err}`,
+          })
+        );
     }
 
     // Add the new name and description information, if inputted.
@@ -198,7 +251,12 @@ router.post(
       { new: true }
     )
       .then((group) => res.json(group))
-      .catch((err) => res.json({ updategrouperror: err }));
+      // If there was an error updating the group's information, return the error in a json object with a bad request status code.
+      .catch((err) =>
+        res.status(400).json({
+          updatingGroupError: `There was an error finding all groups: ${err}`,
+        })
+      );
   }
 );
 
@@ -214,9 +272,9 @@ router.post(
         Group.findOne({ handle: req.params.handle })
           .then((group) => {
             // Investigate whether the user is already a member.
-            // If the user is, return an error
+            // If the user was already a member of the group, return the error in a json object with a not found status code.
             if (group.members.includes(profile.handle.toString())) {
-              res.json({
+              res.status(400).json({
                 alreadymember: 'The user is already a member of the group',
               });
             } else {
@@ -225,24 +283,39 @@ router.post(
               // Add group to user's group list
               profile.groups.addToSet(group.handle);
               // Save profile
-              profile.save();
+              profile
+                .save()
+                // If there was an error saving the profile, return the error in a json object with a bad request status code.
+                .catch((err) =>
+                  res.status(400).json({
+                    savingProfileError: `There was an error saving the profile: ${err}`,
+                  })
+                );
               // Save group
               group
                 .save()
                 // Return group as a json object
                 .then((group) => res.json(group))
-                // Catch any errors
-                .catch((err) => res.json(err));
+                // If there was an error saving the group, return the error in a json object with a bad request status code.
+                .catch((err) =>
+                  res.status(400).json({
+                    savingGroupError: `There was an error saving the group: ${err}`,
+                  })
+                );
             }
           })
-          .catch(() =>
-            // Return an error if the group is not found
-            res.json({ nogroupfound: 'No group found with that handle' })
+          // If there was an error finding the group, return the error in a json object with a not found status code.
+          .catch((err) =>
+            res.status(404).json({
+              findingGroupError: `There was an error finding the group: ${err}`,
+            })
           );
       })
-      .catch(() =>
-        // Return an error if the profile is not found.
-        res.json({ noprofilefound: 'No profile found with that id' })
+      // If there was an error finding the profile, return the error in a json object with a not found status code.
+      .catch((err) =>
+        res.status(404).json({
+          findingProfileError: `There was an error finding the profile: ${err}`,
+        })
       );
   }
 );
@@ -259,9 +332,9 @@ router.post(
         Group.findOne({ handle: req.params.handle })
           .then((group) => {
             // Investigate whether the user is already a member.
-            // If the user isn't, return an error
+            // // If the user is not a member of the group, return the error in a json object with a not found status code.
             if (!group.members.includes(profile.handle.toString())) {
-              res.json({
+              res.status(400).json({
                 notamember: 'The user is not a member of the group',
               });
             } else {
@@ -270,24 +343,39 @@ router.post(
               // Remove group to user's group list
               profile.groups.splice(group.handle);
               // Save profile
-              profile.save();
+              profile
+                .save()
+                // If there was an error saving the profile, return the error in a json object with a bad request status code.
+                .catch((err) =>
+                  res.status(400).json({
+                    savingProfileError: `There was an error saving the profile: ${err}`,
+                  })
+                );
               // Save group
               group
                 .save()
                 // Return group as a json object
                 .then((group) => res.json(group))
-                // Catch any errors
-                .catch((err) => res.json(err));
+                // If there was an error saving the group, return the error in a json object with a bad request status code.
+                .catch((err) =>
+                  res.status(400).json({
+                    savingGroupError: `There was an error saving the group: ${err}`,
+                  })
+                );
             }
           })
-          .catch(() =>
-            // Return an error if the group is not found
-            res.json({ nogroupfound: 'No group found with that handle' })
+          // If there was an error finding the group, return the error in a json object with a not found status code.
+          .catch((err) =>
+            res.status(404).json({
+              findingGroupError: `There was an error finding the group: ${err}`,
+            })
           );
       })
-      .catch(() =>
-        // Return an error if the profile is not found.
-        res.json({ noprofilefound: 'No profile found with that id' })
+      // If there was an error finding the profile, return the error in a json object with a not found status code.
+      .catch((err) =>
+        res.status(404).json({
+          findingProfileError: `There was an error finding the profile: ${err}`,
+        })
       );
   }
 );
@@ -300,10 +388,10 @@ router.post(
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
     // Get the errors object and the boolean value of whether the input is valid.
-    const { errors, isValid } = validateMessageInput(req.body);
+    const { errors, noErrors } = validateMessageInput(req.body);
 
     // If the input is not valid: send a 400 status and return the error object.
-    if (!isValid) {
+    if (!noErrors) {
       return res.status(400).json(errors);
     }
 
@@ -322,12 +410,28 @@ router.post(
               });
             }
             group.chat.push(formattedMessage);
-            group.save();
+            group
+              .save() // If there was an error saving the group, return the error in a json object with a bad request status code.
+              .catch((err) =>
+                res.status(400).json({
+                  savingGroupError: `There was an error saving the group: ${err}`,
+                })
+              );
             res.status(200).json(group);
           })
-          .catch((err) => res.json({ grouperror: err }));
+          // If there was an error finding the group, return the error in a json object with a not found status code.
+          .catch((err) =>
+            res.status(404).json({
+              findingGroupError: `There was an error finding the group: ${err}`,
+            })
+          );
       })
-      .catch((err) => res.json({ profileerror: err }));
+      // If there was an error finding the profile, return the error in a json object with a not found status code.
+      .catch((err) =>
+        res.status(404).json({
+          findingProfileError: `There was an error finding the profile: ${err}`,
+        })
+      );
   }
 );
 
@@ -339,21 +443,33 @@ router.get(
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
     // Find user's profile
-    Profile.findOne({ user: req.user.id }).then((profile) => {
-      // Find the group chat
-      Group.findOne({ handle: req.params.handle })
-        .then((group) => {
-          // Make sure user is a member of the group
-          if (!group.members.includes(profile.handle.toString())) {
-            res.status(400).json({
-              notamember: 'You need to be a member to view in chat',
-            });
-          } else {
-            res.status(200).json(group.chat);
-          }
+    Profile.findOne({ user: req.user.id })
+      .then((profile) => {
+        // Find the group chat
+        Group.findOne({ handle: req.params.handle })
+          .then((group) => {
+            // Make sure user is a member of the group
+            if (!group.members.includes(profile.handle.toString())) {
+              res.status(400).json({
+                notamember: 'You need to be a member to view in chat',
+              });
+            } else {
+              res.status(200).json(group.chat);
+            }
+          })
+          // If there was an error finding the group, return the error in a json object with a not found status code.
+          .catch((err) =>
+            res.status(404).json({
+              findingGroupError: `There was an error finding the group: ${err}`,
+            })
+          );
+      })
+      // If there was an error finding the profile, return the error in a json object with a not found status code.
+      .catch((err) =>
+        res.status(404).json({
+          findingProfileError: `There was an error finding the profile: ${err}`,
         })
-        .catch((err) => res.status(400).json({ grouperror: err }));
-    });
+      );
   }
 );
 
@@ -365,50 +481,83 @@ router.post(
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
     // Find current user's profile.
-    Profile.findOne({ user: req.user.id }).then((profile) => {
-      // Find group to add new moderator to
-      Group.findOne({ handle: req.params.handle }).then((group) => {
-        // Current user must be in the moderators list to add someone new
-        if (!group.moderators.includes(profile.handle.toString())) {
-          res.status(400).json({
-            notmoderator: 'You must be a moderator to add other moderators',
-          });
-        } else {
-          // User to be added must be a real user
-          Profile.findOne({ handle: req.body.handle }).then((newModerator) => {
-            // If user has been found then he is a real user
-            if (newModerator) {
-              // New moderator must be a member of the group
-              if (!group.members.includes(newModerator.handle.toString())) {
-                res.status(400).json({
-                  notmember: 'The new moderator must be a member of the group',
-                });
-              } else {
-                // New moderator must not already be a moderator
-                if (group.moderators.includes(newModerator.handle.toString())) {
-                  return res.status(400).json({
-                    newmoderatoralreadyone:
-                      'The new moderator is already a moderator',
-                  });
-                } else {
-                  // Add moderator to the set of moderators
-                  group.moderators.addToSet(req.body.handle);
-                  group
-                    .save()
-                    .then(res.status(200).json(group))
-                    .catch((err) => res.json({ newmoderatorerror: err }));
-                }
-              }
-            } else {
-              // New moderator could not be found as a new user.
+    Profile.findOne({ user: req.user.id })
+      .then((profile) => {
+        // Find group to add new moderator to
+        Group.findOne({ handle: req.params.handle })
+          .then((group) => {
+            // Current user must be in the moderators list to add someone new
+            if (!group.moderators.includes(profile.handle.toString())) {
               res.status(400).json({
-                cannotfinduser: 'The user to be added cannot be found',
+                notmoderator: 'You must be a moderator to add other moderators',
               });
+            } else {
+              // User to be added must be a real user
+              Profile.findOne({ handle: req.body.handle })
+                .then((newModerator) => {
+                  // If user has been found then he is a real user
+                  if (newModerator) {
+                    // New moderator must be a member of the group
+                    if (
+                      !group.members.includes(newModerator.handle.toString())
+                    ) {
+                      res.status(400).json({
+                        notmember:
+                          'The new moderator must be a member of the group',
+                      });
+                    } else {
+                      // New moderator must not already be a moderator
+                      if (
+                        group.moderators.includes(
+                          newModerator.handle.toString()
+                        )
+                      ) {
+                        return res.status(400).json({
+                          newModeratorAlreadyModeratorError:
+                            'The new moderator is already a moderator',
+                        });
+                      } else {
+                        // Add moderator to the set of moderators
+                        group.moderators.addToSet(req.body.handle);
+                        group
+                          .save()
+                          .then(res.status(200).json(group))
+                          // If there was an error saving the group, return the error in a json object with a bad request status code.
+                          .catch((err) =>
+                            res.status(400).json({
+                              savingGroupError: `There was an error saving the group: ${err}`,
+                            })
+                          );
+                      }
+                    }
+                  } else {
+                    // If there was an error finding the new user's profile, return the error in a json object with a not found status code.
+                    res.status(400).json({
+                      findingProfileError: `There was an error finding the new user's profile: ${err}`,
+                    });
+                  }
+                })
+                // If there was an error finding the profile, return the error in a json object with a not found status code.
+                .catch((err) =>
+                  res.status(404).json({
+                    findingProfileError: `There was an error finding the profile: ${err}`,
+                  })
+                );
             }
-          });
-        }
-      });
-    });
+          })
+          // If there was an error finding the group, return the error in a json object with a not found status code.
+          .catch((err) =>
+            res.status(404).json({
+              findingGroupError: `There was an error finding the group: ${err}`,
+            })
+          );
+      })
+      // If there was an error finding the profile, return the error in a json object with a not found status code.
+      .catch((err) =>
+        res.status(404).json({
+          findingProfileError: `There was an error finding the profile: ${err}`,
+        })
+      );
   }
 );
 
@@ -430,15 +579,18 @@ router.post(
               !group.members.includes(req.body.handle.toString()) ||
               group.moderators.includes(req.body.handle.toString())
             ) {
+              // If the new user is already a member or is a moderator, return the error in a json object with a bad request status code.
               res.status(400).json({
-                memberormoderator:
+                notAMemberOrModeratorError:
                   'The user is either not a member or is a moderator',
               });
             } else {
               // Make sure that current user is a moderator
+              // If the current user is not a moderator, return the error in a json object with a bad request status code.
               if (!group.moderators.includes(profile.handle.toString())) {
                 res.status(400).json({
-                  currentusernotmod: 'The current user is not a moderator',
+                  currentUserNotModeratorError:
+                    'The current user is not a moderator',
                 });
               } else {
                 // Remove user from the member's list
@@ -446,15 +598,28 @@ router.post(
                 group
                   .save()
                   .then(res.status(200).json(group))
+                  // If there was an error saving the group, return the error in a json object with a bad request status code.
                   .catch((err) =>
-                    res.status(400).json({ groupresponseerror: err })
+                    res.status(400).json({
+                      savingGroupError: `There was an error saving the group: ${err}`,
+                    })
                   );
               }
             }
           })
-          .catch((err) => res.status(400).json({ groupfindingerror: err }));
+          // If there was an error finding the group, return the error in a json object with a not found status code.
+          .catch((err) =>
+            res.status(404).json({
+              findingGroupError: `There was an error finding the group: ${err}`,
+            })
+          );
       })
-      .catch((err) => res.status(400).json({ profilefindingerror: err }));
+      // If there was an error finding the profile, return the error in a json object with a not found status code.
+      .catch((err) =>
+        res.status(404).json({
+          findingProfileError: `There was an error finding the profile: ${err}`,
+        })
+      );
   }
 );
 
@@ -473,15 +638,18 @@ router.get(
         if (groups.length > 0) res.status(200).json(groups);
         // If there aren't any posts, return a useful error response
         else {
+          // If there aren't any posts, return the error in a json object with a not found status code.
           res.status(404).json({
-            nopostsfound: "There weren't any posts found for this group",
+            noPosts: `This group has no posts`,
           });
         }
       })
-      // If there was an issue with the search for posts, return an error
-      .catch((err) => {
-        res.status(401).json({ findingpostserror: err });
-      });
+      // If there was an error finding all the group's posts, return the error in a json object with a not found status code.
+      .catch((err) =>
+        res.status(404).json({
+          findingGroupPosts: `There was an error finding all the group's posts: ${err}`,
+        })
+      );
   }
 );
 

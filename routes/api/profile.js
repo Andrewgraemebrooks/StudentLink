@@ -15,7 +15,7 @@ const User = require('../../models/User');
 // @route   GET api/profile/test
 // @desc    Tests profile route
 // @access  Public
-router.get('/test', (req, res) => res.json({ msg: 'Profile Works' }));
+router.get('/test', (req, res) => res.json({ msg: 'Profile Route Works' }));
 
 // @route   POST api/profile
 // @desc    Create user's profile
@@ -24,15 +24,15 @@ router.post(
   '/',
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
-    // Get the errors object and the boolean value of whether the input is valid.
-    const { errors, isValid } = validateProfileInput(req.body);
+    // Check if there were any validation errors
+    const { errors, noErrors } = validateProfileInput(req.body);
 
-    // If the input is not valid: send a 400 status and return the error object.
-    if (!isValid) {
+    // If there were errors, return the errors in a json object with a bad request status code
+    if (!noErrors) {
       return res.status(400).json(errors);
     }
 
-    // Get the request data and put it into the profile fields object
+    // Get the user's data from the request
     const profileFields = {};
     profileFields.user = req.user.id;
     if (req.body.handle) {
@@ -40,15 +40,16 @@ router.post(
       profileFields.handle = validator.trim(req.body.handle);
     }
     if (req.body.university) profileFields.university = req.body.university;
-    // Groups - Split into an array
+    // Split the groups into an array
     if (typeof req.body.groups !== 'undefined') {
       profileFields.groups = req.body.groups.split(',');
     }
     if (req.body.bio) profileFields.bio = req.body.bio;
 
-    // If the profile already exists, then updated it
+    // Find the profile
     Profile.findOne({ user: req.user.id }).then((profile) => {
       if (profile) {
+        // If the profile already exists, then update it
         Profile.findOneAndUpdate(
           { user: req.user.id },
           { $set: profileFields },
@@ -78,25 +79,25 @@ router.post(
 // @access  Private
 router.get(
   '/',
-  // Authenticate the user with a token.
+  // Authenticate the user
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
-    // Create an errors object to contain any errors.
+    // Create an errors object to store the errors
     const errors = {};
-    // Find the user in the database by the user id
+    // Find the user's profile
     Profile.findOne({ user: req.user.id })
       // Populate the name field
       .populate('user', ['name'])
       .then((profile) => {
-        // If the profile is not found then there is no profile for that user
+        // Return an error if the profile was not found
         if (!profile) {
           errors.noprofile = 'There is no profile for this user';
           return res.status(404).json(errors);
         }
-        // If the profile is found, return it as a json object
+        // Return the profile
         res.json(profile);
       })
-      // Catch any errors and return them.
+      // Return any errors
       .catch((err) => res.status(404).json(err));
   }
 );
@@ -108,21 +109,21 @@ router.get(
   '/all',
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
-    // Create an errors object to contain any errors.
+    // Create an errors object to store errors
     const errors = {};
-    // Use the find method to get all users
+    // Find the profile
     Profile.find()
       .populate('user', ['name'])
       .then((profiles) => {
-        // If there aren't any profiles, return an error
+        // Return an error if no profiles have been created
         if (!profiles) {
           errors.noprofile = 'There are no profiles';
           return res.status(404).json(errors);
         }
-        // Return the profiles as a json object
+        // Return the profiles
         res.json(profiles);
       })
-      // Catch any errors and return them.
+      // Return any errors
       .catch((err) => res.status(404).json(err));
   }
 );
@@ -131,20 +132,20 @@ router.get(
 // @desc    Get profile by handle
 // @access  Public
 router.get('/handle/:handle', (req, res) => {
-  // Search the database for the user by their handle
+  // Find the profile using the handle
   Profile.findOne({ handle: req.params.handle })
     // Populate the fields
     .populate('user', ['name'])
     .then((profile) => {
-      // If there is no profile found by that handle return an error
+      // Return an error if there aren't any profiles for that handle
       if (!profile) {
         errors.noprofile = 'There is no profile for this user';
         res.status(404).json(errors);
       }
-      // Return the profile as a json object
+      // Return the profile
       res.json(profile);
     })
-    // Catch any errors and return them as a json object
+    // Return any errors
     .catch((err) => res.status(404).json(err));
 });
 
@@ -174,15 +175,15 @@ router.post(
   '/update',
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
-    // Get the errors object and the boolean value of whether the input is valid.
-    const { errors, isValid } = validateUpdateInput(req.body);
+    // Check if there were any validation errors
+    const { errors, noErrors } = validateUpdateInput(req.body);
 
-    // If the input is not valid: send a 400 status and return the error object.
-    if (!isValid) {
+    // If there were errors, return the errors in a json object with a bad request status code
+    if (!noErrors) {
       return res.status(400).json(errors);
     }
 
-    // Object to contain the new fields
+    // Object to contain the new information
     const updatedFields = {};
 
     // Check to see if handle exists so that two profiles don't have the same handle
@@ -201,7 +202,7 @@ router.post(
     if (req.body.university) updatedFields.university = req.body.university;
     if (req.body.bio) updatedFields.bio = req.body.bio;
 
-    // Update the profile's information
+    // Update the profile
     Profile.findOneAndUpdate(
       { user: req.user.id },
       { $set: updatedFields },

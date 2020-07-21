@@ -13,7 +13,7 @@ const validateUpdateInput = require('../../validation/update-posts');
 // @route   GET api/posts/test
 // @desc    Tests posts route
 // @access  Public
-router.get('/test', (req, res) => res.json({ msg: 'Posts Works' }));
+router.get('/test', (req, res) => res.json({ msg: 'Image Posts Route Works' }));
 
 // @route   POST api/posts
 // @desc    Create post
@@ -23,20 +23,31 @@ router.post(
   // Validate the user
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
+    Profile.findOne({ user: req.user.id })
+      .then((profile) => {
+        // Create a new post object with the inputted information
+        const newImagePost = new ImagePost({
+          user: profile.handle,
+          group: req.params.handle,
+        });
 
-    Profile.findOne({ user: req.user.id }).then((profile) => {
-      // Create a new post object with the inputted information
-      const newTextPost = new ImagePost({
-        user: profile.handle,
-        group: req.params.handle,
-      });
-
-      // Save the new post
-      newTextPost
-        .save()
-        .then(res.status(200).json(newTextPost))
-        .catch((err) => res.json(err));
-    });
+        // Save the new post
+        newImagePost
+          .save()
+          .then(res.status(200).json(newImagePost))
+          // If there was an error saving the image post, return the error in a json object with a bad request status code.
+          .catch((err) =>
+            res.status(400).json({
+              saveImagePostError: `There was an error saving the image post: ${err}`,
+            })
+          );
+      })
+      // If there was an error finding the profile, return the error in a json object with a not found status code.
+      .catch((err) =>
+        res.status(404).json({
+          findProfileError: `There was an error finding the profile: ${err}`,
+        })
+      );
   }
 );
 
@@ -47,8 +58,11 @@ router.get('/:id', (req, res) => {
   // Get a specific post by its idea
   ImagePost.findById(req.params.id)
     .then((post) => res.json(post))
+    // If there was an error finding the image post, return the error in a json object with a not found status code.
     .catch((err) =>
-      res.status(404).json({ nopostfound: 'No posts found with that ID' })
+      res.status(404).json({
+        findImagePostError: `There was an error finding the image post: ${err}`,
+      })
     );
 });
 
@@ -59,25 +73,32 @@ router.delete(
   '/:id',
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
-    // Find a the profile that created the post
-    Profile.findOne({ user: req.user.id }).then((profile) => {
-      // Find the post by its id
-      ImagePost.findById(req.params.id)
-        .then((post) => {
-          // Check if the post is owned by the user. If not, return an error
-          if (post.user.toString() !== req.user.id) {
-            return res
-              .status(401)
-              .json({ notauthorised: 'User is not authorised' });
-          }
-          // Delete the posts and return a success message
-          post.remove().then(() => res.json({ success: true }));
+    // Find the post by its id
+    ImagePost.findById(req.params.id)
+      // Check if the post is owned by the user. If not, return an error
+      .then((post) => {
+        if (post.user.toString() !== req.user.id) {
+          return res
+            .status(401)
+            .json({ notauthorised: 'User is not authorised' });
+        }
+        // Delete the posts and return a success message
+        post
+          .remove()
+          .then(() => res.json({ success: true }))
+          // If there was an error removing the image post, return the error in a json object with a bad request status code.
+          .catch((err) =>
+            res.status(400).json({
+              removeImagePostError: `There was an error removing the image post: ${err}`,
+            })
+          );
+      })
+      // If there was an error finding the image post, return the error in a json object with a not found status code.
+      .catch((err) =>
+        res.status(404).json({
+          findImagePostError: `There was an error finding the image post: ${err}`,
         })
-        // Catch in case no posts are found with that id.
-        .catch(
-          res.status(404).json({ nopostfound: 'No posts found with that ID' })
-        );
-    });
+      );
   }
 );
 
@@ -109,10 +130,18 @@ router.post(
           post
             .save()
             .then((post) => res.json(post))
-            .catch((err) => res.json(err));
+            // If there was an error saving the image post to the database, return the error in a json object with a bad request status code
+            .catch((err) =>
+              res.status(400).json({
+                savingImagePostError: `There was an error saving the new image post: ${err}`,
+              })
+            );
         })
+        // If there was an error finding the image post, return the error in a json object with a not found status code.
         .catch((err) =>
-          res.status(400).json({ error: `There was an error: ${err}` })
+          res.status(404).json({
+            findImagePostError: `There was an error finding the image post: ${err}`,
+          })
         );
     });
   }
@@ -146,8 +175,11 @@ router.post(
           .then((post) => res.json(post))
           .catch((err) => res.json(err));
       })
+      // If there was an error finding the image post, return the error in a json object with a not found status code.
       .catch((err) =>
-        res.status(400).json({ error: `There was an error: ${err}` })
+        res.status(404).json({
+          findImagePostError: `There was an error finding the image post: ${err}`,
+        })
       );
   }
 );
@@ -159,35 +191,52 @@ router.post(
   '/comment/:id',
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
-    Profile.findOne({ user: req.user.id }).then((profile) => {
-      // Find the post by its id
-      ImagePost.findById(req.params.id)
-        .then((post) => {
-          // Create a new comment object to hold all of the inputted data
-          const newComment = {
-            text: req.body.text,
-            name: req.body.name,
-            user: profile.handle,
-          };
-
-          // Add to comments array
-          post.comments.unshift(newComment);
-
-          // Save
-          post.save().then((post) => res.json(post));
-        })
-        // Catch any errors
-        .catch((err) =>
-          res.status(404).json({ postnotfound: 'No posts found' })
-        );
-    });
     // Get the errors object and the boolean value of whether the input is valid.
-    const { errors, isValid } = validatePostInput(req.body);
+    const { errors, noErrors } = validatePostInput(req.body);
 
     // If the input is not valid: send a 400 status and return the error object.
-    if (!isValid) {
+    if (!noErrors) {
       return res.status(400).json(errors);
     }
+    Profile.findOne({ user: req.user.id })
+      .then((profile) => {
+        // Find the post by its id
+        ImagePost.findById(req.params.id)
+          .then((post) => {
+            // Create a new comment object to hold all of the inputted data
+            const newComment = {
+              text: req.body.text,
+              name: req.body.name,
+              user: profile.handle,
+            };
+
+            // Add to comments array
+            post.comments.unshift(newComment);
+
+            // Save
+            post
+              .save()
+              .then((post) => res.json(post))
+              // If there was an error saving the image post to the database, return the error in a json object with a bad request status code
+              .catch((err) =>
+                res.status(400).json({
+                  savingImagePostError: `There was an error saving the new image post: ${err}`,
+                })
+              );
+          })
+          // If there was an error finding the image post, return the error in a json object with a not found status code.
+          .catch((err) =>
+            res.status(404).json({
+              findImagePostError: `There was an error finding the image post: ${err}`,
+            })
+          );
+      })
+      // If there was an error finding the profile, return the error in a json object with a not found status code
+      .catch((err) =>
+        res.status(404).json({
+          findingProfileError: `There was an error finding the user's profile: ${err}`,
+        })
+      );
   }
 );
 
@@ -220,9 +269,22 @@ router.delete(
         post.comments.splice(removeIndex, 1);
 
         // Save
-        post.save().then((post) => res.json(post));
+        post
+          .save()
+          .then((post) => res.json(post))
+          // If there was an error saving the image post to the database, return the error in a json object with a bad request status code
+          .catch((err) =>
+            res.status(400).json({
+              savingImagePostError: `There was an error saving the new image post: ${err}`,
+            })
+          );
       })
-      .catch(() => res.status(404).json({ postnotfound: 'No posts found' }));
+      // If there was an error finding the image post, return the error in a json object with a not found status code
+      .catch((err) =>
+        res.status(404).json({
+          findingImagePostError: `There was an error finding the user's image post: ${err}`,
+        })
+      );
   }
 );
 
@@ -234,10 +296,10 @@ router.post(
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
     // Get the errors object and the boolean value of whether the input is valid.
-    const { errors, isValid } = validateUpdateInput(req.body);
+    const { errors, noErrors } = validateUpdateInput(req.body);
 
     // If the input is not valid: send a 400 status and return the error object.
-    if (!isValid) {
+    if (!noErrors) {
       return res.status(400).json(errors);
     }
 
@@ -251,7 +313,14 @@ router.post(
       { _id: req.params.id },
       { $set: updatedFields },
       { new: true }
-    ).then((post) => res.json(post));
+    )
+      .then((post) => res.json(post))
+      // If there was an error updating the imagepost, return the error in a json object with a not found status code
+      .catch((err) =>
+        res.status(404).json({
+          updateImagePostError: `There was an error updating the imagepost: ${err}`,
+        })
+      );
   }
 );
 

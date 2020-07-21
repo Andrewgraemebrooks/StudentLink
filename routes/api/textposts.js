@@ -13,7 +13,7 @@ const validateUpdateInput = require('../../validation/update-posts');
 // @route   GET api/posts/test
 // @desc    Tests posts route
 // @access  Public
-router.get('/test', (req, res) => res.json({ msg: 'Posts Works' }));
+router.get('/test', (req, res) => res.json({ msg: 'text posts Route Works' }));
 
 // @route   POST api/posts
 // @desc    Create post
@@ -23,28 +23,31 @@ router.post(
   // Validate the user
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
-    // Get the errors object and the boolean value of whether the input is valid.
-    const { errors, isValid } = validatePostInput(req.body);
+    Profile.findOne({ user: req.user.id })
+      .then((profile) => {
+        // Create a new post object with the inputted information
+        const newTextPost = new TextPost({
+          user: profile.handle,
+          group: req.params.handle,
+        });
 
-    // If the input is not valid: send a 400 status and return the error object.
-    if (!isValid) {
-      return res.status(400).json(errors);
-    }
-
-    Profile.findOne({ user: req.user.id }).then((profile) => {
-      // Create a new post object with the inputted information
-      const newTextPost = new TextPost({
-        text: req.body.text,
-        user: profile.handle,
-        group: req.params.handle,
-      });
-
-      // Save the new post
-      newTextPost
-        .save()
-        .then(res.status(200).json(newTextPost))
-        .catch((err) => res.json(err));
-    });
+        // Save the new post
+        newTextPost
+          .save()
+          .then(res.status(200).json(newTextPost))
+          // If there was an error saving the text post, return the error in a json object with a bad request status code.
+          .catch((err) =>
+            res.status(400).json({
+              saveTextPostError: `There was an error saving the text post: ${err}`,
+            })
+          );
+      })
+      // If there was an error finding the profile, return the error in a json object with a not found status code.
+      .catch((err) =>
+        res.status(404).json({
+          findProfileError: `There was an error finding the profile: ${err}`,
+        })
+      );
   }
 );
 
@@ -55,8 +58,11 @@ router.get('/:id', (req, res) => {
   // Get a specific post by its idea
   TextPost.findById(req.params.id)
     .then((post) => res.json(post))
+    // If there was an error finding the text post, return the error in a json object with a not found status code.
     .catch((err) =>
-      res.status(404).json({ nopostfound: 'No posts found with that ID' })
+      res.status(404).json({
+        findTextPostError: `There was an error finding the text post: ${err}`,
+      })
     );
 });
 
@@ -67,25 +73,32 @@ router.delete(
   '/:id',
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
-    // Find a the profile that created the post
-    Profile.findOne({ user: req.user.id }).then((profile) => {
-      // Find the post by its id
-      TextPost.findById(req.params.id)
-        .then((post) => {
-          // Check if the post is owned by the user. If not, return an error
-          if (post.user.toString() !== req.user.id) {
-            return res
-              .status(401)
-              .json({ notauthorised: 'User is not authorised' });
-          }
-          // Delete the posts and return a success message
-          post.remove().then(() => res.json({ success: true }));
+    // Find the post by its id
+    TextPost.findById(req.params.id)
+      // Check if the post is owned by the user. If not, return an error
+      .then((post) => {
+        if (post.user.toString() !== req.user.id) {
+          return res
+            .status(401)
+            .json({ notauthorised: 'User is not authorised' });
+        }
+        // Delete the posts and return a success message
+        post
+          .remove()
+          .then(() => res.json({ success: true }))
+          // If there was an error removing the text post, return the error in a json object with a bad request status code.
+          .catch((err) =>
+            res.status(400).json({
+              removeTextPostError: `There was an error removing the text post: ${err}`,
+            })
+          );
+      })
+      // If there was an error finding the text post, return the error in a json object with a not found status code.
+      .catch((err) =>
+        res.status(404).json({
+          findTextPostError: `There was an error finding the text post: ${err}`,
         })
-        // Catch in case no posts are found with that id.
-        .catch(
-          res.status(404).json({ nopostfound: 'No posts found with that ID' })
-        );
-    });
+      );
   }
 );
 
@@ -117,10 +130,18 @@ router.post(
           post
             .save()
             .then((post) => res.json(post))
-            .catch((err) => res.json(err));
+            // If there was an error saving the text post to the database, return the error in a json object with a bad request status code
+            .catch((err) =>
+              res.status(400).json({
+                savingTextPostError: `There was an error saving the new text post: ${err}`,
+              })
+            );
         })
+        // If there was an error finding the text post, return the error in a json object with a not found status code.
         .catch((err) =>
-          res.status(400).json({ error: `There was an error: ${err}` })
+          res.status(404).json({
+            findTextPostError: `There was an error finding the text post: ${err}`,
+          })
         );
     });
   }
@@ -154,8 +175,11 @@ router.post(
           .then((post) => res.json(post))
           .catch((err) => res.json(err));
       })
+      // If there was an error finding the text post, return the error in a json object with a not found status code.
       .catch((err) =>
-        res.status(400).json({ error: `There was an error: ${err}` })
+        res.status(404).json({
+          findTextPostError: `There was an error finding the text post: ${err}`,
+        })
       );
   }
 );
@@ -167,35 +191,52 @@ router.post(
   '/comment/:id',
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
-    Profile.findOne({ user: req.user.id }).then((profile) => {
-      // Find the post by its id
-      TextPost.findById(req.params.id)
-        .then((post) => {
-          // Create a new comment object to hold all of the inputted data
-          const newComment = {
-            text: req.body.text,
-            name: req.body.name,
-            user: profile.handle,
-          };
-
-          // Add to comments array
-          post.comments.unshift(newComment);
-
-          // Save
-          post.save().then((post) => res.json(post));
-        })
-        // Catch any errors
-        .catch((err) =>
-          res.status(404).json({ postnotfound: 'No posts found' })
-        );
-    });
     // Get the errors object and the boolean value of whether the input is valid.
-    const { errors, isValid } = validatePostInput(req.body);
+    const { errors, noErrors } = validatePostInput(req.body);
 
     // If the input is not valid: send a 400 status and return the error object.
-    if (!isValid) {
+    if (!noErrors) {
       return res.status(400).json(errors);
     }
+    Profile.findOne({ user: req.user.id })
+      .then((profile) => {
+        // Find the post by its id
+        TextPost.findById(req.params.id)
+          .then((post) => {
+            // Create a new comment object to hold all of the inputted data
+            const newComment = {
+              text: req.body.text,
+              name: req.body.name,
+              user: profile.handle,
+            };
+
+            // Add to comments array
+            post.comments.unshift(newComment);
+
+            // Save
+            post
+              .save()
+              .then((post) => res.json(post))
+              // If there was an error saving the text post to the database, return the error in a json object with a bad request status code
+              .catch((err) =>
+                res.status(400).json({
+                  savingTextPostError: `There was an error saving the new text post: ${err}`,
+                })
+              );
+          })
+          // If there was an error finding the text post, return the error in a json object with a not found status code.
+          .catch((err) =>
+            res.status(404).json({
+              findTextPostError: `There was an error finding the text post: ${err}`,
+            })
+          );
+      })
+      // If there was an error finding the profile, return the error in a json object with a not found status code
+      .catch((err) =>
+        res.status(404).json({
+          findingProfileError: `There was an error finding the user's profile: ${err}`,
+        })
+      );
   }
 );
 
@@ -228,9 +269,22 @@ router.delete(
         post.comments.splice(removeIndex, 1);
 
         // Save
-        post.save().then((post) => res.json(post));
+        post
+          .save()
+          .then((post) => res.json(post))
+          // If there was an error saving the text post to the database, return the error in a json object with a bad request status code
+          .catch((err) =>
+            res.status(400).json({
+              savingTextPostError: `There was an error saving the new text post: ${err}`,
+            })
+          );
       })
-      .catch(() => res.status(404).json({ postnotfound: 'No posts found' }));
+      // If there was an error finding the text post, return the error in a json object with a not found status code
+      .catch((err) =>
+        res.status(404).json({
+          findingTextPostError: `There was an error finding the user's text post: ${err}`,
+        })
+      );
   }
 );
 
@@ -242,10 +296,10 @@ router.post(
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
     // Get the errors object and the boolean value of whether the input is valid.
-    const { errors, isValid } = validateUpdateInput(req.body);
+    const { errors, noErrors } = validateUpdateInput(req.body);
 
     // If the input is not valid: send a 400 status and return the error object.
-    if (!isValid) {
+    if (!noErrors) {
       return res.status(400).json(errors);
     }
 
@@ -259,7 +313,14 @@ router.post(
       { _id: req.params.id },
       { $set: updatedFields },
       { new: true }
-    ).then((post) => res.json(post));
+    )
+      .then((post) => res.json(post))
+      // If there was an error updating the TextPost, return the error in a json object with a not found status code
+      .catch((err) =>
+        res.status(404).json({
+          updateTextPostError: `There was an error updating the TextPost: ${err}`,
+        })
+      );
   }
 );
 
