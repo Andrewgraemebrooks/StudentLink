@@ -17,9 +17,7 @@ module.exports = function validateUpdateInput(userData) {
   userData.name = !isEmpty(userData.name) ? userData.name : '';
   userData.email = !isEmpty(userData.email) ? userData.email : '';
   userData.password = !isEmpty(userData.password) ? userData.password : '';
-  userData.confirmPassword = !isEmpty(userData.confirmPassword)
-    ? userData.confirmPassword
-    : '';
+  userData.password2 = !isEmpty(userData.password2) ? userData.password2 : '';
 
   // Adds an error if the name field has an incorrent number of characters.
   if (
@@ -43,8 +41,8 @@ module.exports = function validateUpdateInput(userData) {
   }
 
   // Adds an error if passwords do not match
-  if (!validator.equals(userData.password, userData.confirmPassword)) {
-    errors.confirmPassword = 'Passwords must match';
+  if (!validator.equals(userData.password, userData.password2)) {
+    errors.password2 = 'Passwords must match';
   }
 
   // Returns the errors object and a boolean variable of whether or not there are any errors.

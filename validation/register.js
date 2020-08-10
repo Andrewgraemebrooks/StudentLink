@@ -17,9 +17,7 @@ module.exports = function validateRegisterInput(userData) {
   userData.name = !isEmpty(userData.name) ? userData.name : '';
   userData.email = !isEmpty(userData.email) ? userData.email : '';
   userData.password = !isEmpty(userData.password) ? userData.password : '';
-  userData.confirmPassword = !isEmpty(userData.confirmPassword)
-    ? userData.confirmPassword
-    : '';
+  userData.password2 = !isEmpty(userData.password2) ? userData.password2 : '';
 
   // Adds an error if the name field has an incorrent number of characters.
   if (!validator.isLength(userData.name, { min: 2, max: 30 })) {
@@ -52,13 +50,13 @@ module.exports = function validateRegisterInput(userData) {
   }
 
   // Adds an error if confirm password is empty
-  if (validator.isEmpty(userData.confirmPassword)) {
-    errors.confirmPassword = 'Confirm password field is required';
+  if (validator.isEmpty(userData.password2)) {
+    errors.password2 = 'Confirm password field is required';
   }
 
   // Adds an error if passwords do not match
-  if (!validator.equals(userData.password, userData.confirmPassword)) {
-    errors.confirmPassword = 'Passwords must match';
+  if (!validator.equals(userData.password, userData.password2)) {
+    errors.password2 = 'Passwords must match';
   }
 
   // Returns the errors object and a boolean variable of whether or not there are any errors.
