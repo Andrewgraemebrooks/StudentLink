@@ -146,11 +146,15 @@ router.get('/handle/:handle', (req, res) => {
       res.json(profile);
     })
     // Return any errors
-    .catch((err) => res.status(404).json(err));
+    .catch((err) =>
+      res
+        .status(404)
+        .json({ couldNotFindProfileError: 'No profile found by that handle' })
+    );
 });
 
 // @route   DELETE api/profile
-// @desc    D elete profile
+// @desc    Delete profile
 // @access  Private
 router.delete(
   '/',
