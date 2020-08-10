@@ -624,27 +624,6 @@ router.get(
   '/:handle/posts',
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
-    // // Find all the posts from that group
-    // TextPost.find({ group: req.params.handle })
-    //   .populate('posts', ['text'])
-    //   .sort({ date: -1 })
-    //   .then((groups) => {
-    //     // If there any posts, return them
-    //     if (groups.length > 0) res.status(200).json(groups);
-    //     // If there aren't any posts, return a useful error response
-    //     else {
-    //       // If there aren't any posts, return the error in a json object with a not found status code.
-    //       res.status(404).json({
-    //         noPosts: `This group has no posts`,
-    //       });
-    //     }
-    //   })
-    //   // If there was an error finding all the group's posts, return the error in a json object with a not found status code.
-    //   .catch((err) =>
-    //     res.status(404).json({
-    //       findingGroupPosts: `There was an error finding all the group's posts: ${err}`,
-    //     })
-    //   );
     Group.findOne({ handle: req.params.handle })
       .then((group) => {
         res.status(200).json(group);
