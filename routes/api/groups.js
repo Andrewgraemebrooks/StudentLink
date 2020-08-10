@@ -279,36 +279,29 @@ router.post(
                 alreadymember: 'The user is already a member of the group',
               });
             } else {
-              // Add user to group's member list
-              group.members.addToSet(profile.handle);
-              // Add group to user's group list
-              profile.groups.addToSet(group.handle);
-              // Save profile
-              profile
-                .save()
-                // If there was an error saving the profile, return the error in a json object with a bad request status code.
-                .catch((err) =>
-                  res.status(400).json({
-                    savingProfileError: `There was an error saving the profile: ${err}`,
-                  })
-                );
-              // Save group
-              group
-                .save()
-                // Return group as a json object
-                .then((group) => res.json(group))
-                // If there was an error saving the group, return the error in a json object with a bad request status code.
-                .catch((err) =>
-                  res.status(400).json({
-                    savingGroupError: `There was an error saving the group: ${err}`,
-                  })
-                );
+            // Add user to group's member list
+            group.members.addToSet(profile.handle);
+            // Add group to user's group list
+            profile.groups.addToSet(group.handle);
+            // Save profile
+            profile.save();
+            // Save group
+            group
+              .save()
+              // Return group as a json object
+              .then((group) => res.json(group))
+              // If there was an error saving the group, return the error in a json object with a bad request status code.
+              .catch((err) =>
+                res.status(400).json({
+                  savingGroupError: `There was an error saving the group: ${err}`,
+                })
+              );
             }
           })
           // If there was an error finding the group, return the error in a json object with a not found status code.
           .catch((err) =>
             res.status(404).json({
-              findingGroupError: `There was an error finding the group: ${err}`,
+              findingGroupError: `There was an error finding the group`,
             })
           );
       })
