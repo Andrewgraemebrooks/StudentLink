@@ -31,8 +31,13 @@ router.post('/register', (req, res) => {
     return res.status(400).json(errors);
   }
 
+  // Normalise email
+  const normalisedEmail = validator.normalizeEmail(req.body.email, {
+    all_lowercase: true,
+  });
+
   // Find the user
-  User.findOne({ email: req.body.email }).then((user) => {
+  User.findOne({ email: normalisedEmail }).then((user) => {
     // Return an error if the email is already in use
     if (user) {
       return res.status(400).json({ email: 'Email already exists' });
@@ -41,9 +46,7 @@ router.post('/register', (req, res) => {
       const newUser = new User({
         name: req.body.name,
         // Normalise the email to all lowercase
-        email: validator.normalizeEmail(req.body.email, {
-          all_lowercase: true,
-        }),
+        email: normalisedEmail,
         password: req.body.password,
       });
 
@@ -55,7 +58,7 @@ router.post('/register', (req, res) => {
           // Save new user
           newUser
             .save()
-            // Return user 
+            // Return user
             .then((user) => res.json(user))
             // Return any errors
             .catch((err) => res.status(400).json(err));
