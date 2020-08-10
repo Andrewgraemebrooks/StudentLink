@@ -534,7 +534,7 @@ router.post(
                   } else {
                     // If there was an error finding the new user's profile, return the error in a json object with a not found status code.
                     res.status(400).json({
-                      findingProfileError: `There was an error finding the new user's profile: ${err}`,
+                      findingProfileError: `There was an error finding the new user's profile`,
                     });
                   }
                 })
