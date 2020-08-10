@@ -279,23 +279,23 @@ router.post(
                 alreadymember: 'The user is already a member of the group',
               });
             } else {
-            // Add user to group's member list
-            group.members.addToSet(profile.handle);
-            // Add group to user's group list
-            profile.groups.addToSet(group.handle);
-            // Save profile
-            profile.save();
-            // Save group
-            group
-              .save()
-              // Return group as a json object
-              .then((group) => res.json(group))
-              // If there was an error saving the group, return the error in a json object with a bad request status code.
-              .catch((err) =>
-                res.status(400).json({
-                  savingGroupError: `There was an error saving the group: ${err}`,
-                })
-              );
+              // Add user to group's member list
+              group.members.addToSet(profile.handle);
+              // Add group to user's group list
+              profile.groups.addToSet(group.handle);
+              // Save profile
+              profile.save();
+              // Save group
+              group
+                .save()
+                // Return group as a json object
+                .then((group) => res.json(group))
+                // If there was an error saving the group, return the error in a json object with a bad request status code.
+                .catch((err) =>
+                  res.status(400).json({
+                    savingGroupError: `There was an error saving the group: ${err}`,
+                  })
+                );
             }
           })
           // If there was an error finding the group, return the error in a json object with a not found status code.
@@ -624,25 +624,35 @@ router.get(
   '/:handle/posts',
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
-    // Find all the posts from that group
-    TextPost.find({ group: req.params.handle })
-      .sort({ date: -1 })
-      .then((groups) => {
-        // If there any posts, return them
-        if (groups.length > 0) res.status(200).json(groups);
-        // If there aren't any posts, return a useful error response
-        else {
-          // If there aren't any posts, return the error in a json object with a not found status code.
-          res.status(404).json({
-            noPosts: `This group has no posts`,
-          });
-        }
+    // // Find all the posts from that group
+    // TextPost.find({ group: req.params.handle })
+    //   .populate('posts', ['text'])
+    //   .sort({ date: -1 })
+    //   .then((groups) => {
+    //     // If there any posts, return them
+    //     if (groups.length > 0) res.status(200).json(groups);
+    //     // If there aren't any posts, return a useful error response
+    //     else {
+    //       // If there aren't any posts, return the error in a json object with a not found status code.
+    //       res.status(404).json({
+    //         noPosts: `This group has no posts`,
+    //       });
+    //     }
+    //   })
+    //   // If there was an error finding all the group's posts, return the error in a json object with a not found status code.
+    //   .catch((err) =>
+    //     res.status(404).json({
+    //       findingGroupPosts: `There was an error finding all the group's posts: ${err}`,
+    //     })
+    //   );
+    Group.findOne({ handle: req.params.handle })
+      .then((group) => {
+        res.status(200).json(group);
       })
-      // If there was an error finding all the group's posts, return the error in a json object with a not found status code.
       .catch((err) =>
-        res.status(404).json({
-          findingGroupPosts: `There was an error finding all the group's posts: ${err}`,
-        })
+        res
+          .status(400)
+          .json({ findingGroupError: 'Could not find a group by that handle' })
       );
   }
 );
