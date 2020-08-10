@@ -10,12 +10,12 @@ const Profile = require('../../models/Profile');
 const validatePostInput = require('../../validation/textposts');
 const validateUpdateInput = require('../../validation/update-posts');
 
-// @route   GET api/posts/test
+// @route   GET api/textposts/test
 // @desc    Tests posts route
 // @access  Public
 router.get('/test', (req, res) => res.json({ msg: 'text posts Route Works' }));
 
-// @route   POST api/posts
+// @route   POST api/textposts
 // @desc    Create post
 // @access  Private
 router.post(
@@ -23,10 +23,18 @@ router.post(
   // Validate the user
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
+    // Check if there were any validation errors
+    const { errors, noErrors } = validatePostInput(req.body);
+
+    // If there were errors, return the errors in a json object with a bad request status code
+    if (!noErrors) {
+      return res.status(400).json(errors);
+    }
     Profile.findOne({ user: req.user.id })
       .then((profile) => {
         // Create a new post object with the inputted information
         const newTextPost = new TextPost({
+          text: req.body.text,
           user: profile.handle,
           group: req.params.handle,
         });
@@ -51,7 +59,7 @@ router.post(
   }
 );
 
-// @route   GET api/posts/:id
+// @route   GET api/textposts/:id
 // @desc    Get post by id
 // @access  Public
 router.get('/:id', (req, res) => {
@@ -66,7 +74,7 @@ router.get('/:id', (req, res) => {
     );
 });
 
-// @route   DELETE api/posts/:id
+// @route   DELETE api/textposts/:id
 // @desc    Delete post
 // @access  Private
 router.delete(
@@ -102,7 +110,7 @@ router.delete(
   }
 );
 
-// @route   POST api/posts/like/:id
+// @route   POST api/textposts/like/:id
 // @desc    Like TextPost
 // @access  Private
 router.post(
@@ -147,7 +155,7 @@ router.post(
   }
 );
 
-// @route   POST api/posts/unlike/:id
+// @route   POST api/textposts/unlike/:id
 // @desc    Unlike TextPost
 // @access  Private
 router.post(
@@ -184,7 +192,7 @@ router.post(
   }
 );
 
-// @route   POST api/posts/comment/:id
+// @route   POST api/textposts/comment/:id
 // @desc    Add comment to post
 // @access  Private
 router.post(
@@ -240,7 +248,7 @@ router.post(
   }
 );
 
-// @route   DELETE api/posts/comment/:id/:comment_id
+// @route   DELETE api/textposts/comment/:id/:comment_id
 // @desc    Remove comment from post
 // @access  Private
 router.delete(
@@ -288,7 +296,7 @@ router.delete(
   }
 );
 
-// @route   POST api/posts/update
+// @route   POST api/textposts/update
 // @desc    Updates current user
 // @access  Private
 router.post(

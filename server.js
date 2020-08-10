@@ -7,7 +7,6 @@ const passport = require('passport');
 // Bring in the routes
 const groups = require('./routes/api/groups');
 const textposts = require('./routes/api/textposts');
-const imageposts = require('./routes/api/imageposts');
 const profile = require('./routes/api/profile');
 const users = require('./routes/api/users');
 
@@ -41,7 +40,6 @@ require('./config/passport')(passport);
 // Routes
 app.use('/api/groups', groups);
 app.use('/api/textposts', textposts);
-app.use('/api/imageposts', imageposts);
 app.use('/api/profile', profile);
 app.use('/api/users', users);
 
