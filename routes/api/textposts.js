@@ -23,10 +23,18 @@ router.post(
   // Validate the user
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
+    // Check if there were any validation errors
+    const { errors, noErrors } = validatePostInput(req.body);
+
+    // If there were errors, return the errors in a json object with a bad request status code
+    if (!noErrors) {
+      return res.status(400).json(errors);
+    }
     Profile.findOne({ user: req.user.id })
       .then((profile) => {
         // Create a new post object with the inputted information
         const newTextPost = new TextPost({
+          text: req.body.text,
           user: profile.handle,
           group: req.params.handle,
         });
