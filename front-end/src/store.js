@@ -11,6 +11,7 @@ const store = createStore(
   initialState,
   compose(
     applyMiddleware(...middleware),
+    // You have to use the Redux DevTool Extension with the following line or else the program crashes.
     window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
   )
 );
