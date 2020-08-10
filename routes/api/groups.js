@@ -241,6 +241,7 @@ router.post(
     }
 
     // Add the new name and description information, if inputted.
+    if (req.body.name) updatedFields.name = req.body.name;
     if (req.body.university) updatedFields.university = req.body.university;
     if (req.body.bio) updatedFields.bio = req.body.bio;
 
