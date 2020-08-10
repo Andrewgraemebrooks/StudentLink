@@ -32,21 +32,21 @@ router.post('/register', (req, res) => {
   }
 
   // Normalise email
-  const normalisedEmail = validator.normalizeEmail(req.body.email, {
+  const email = validator.normalizeEmail(req.body.email, {
     all_lowercase: true,
   });
 
   // Find the user
-  User.findOne({ email: normalisedEmail }).then((user) => {
+  User.findOne({ email: email }).then((user) => {
     // Return an error if the email is already in use
     if (user) {
-      return res.status(400).json({ email: 'Email already exists' });
+      res.status(400).json({ emailTakenError: `Email has already been taken` });
     } else {
       // New object to store the user's information
       const newUser = new User({
         name: req.body.name,
         // Normalise the email to all lowercase
-        email: normalisedEmail,
+        email: email,
         password: req.body.password,
       });
 
@@ -149,37 +149,51 @@ router.post(
       return res.status(400).json(errors);
     }
 
-    const updatedFields = {};
-    if (req.body.name) updatedFields.name = req.body.name;
-    if (req.body.email) {
-      // Normalise email to all lowercase
-      updatedFields.email = validator.normalizeEmail(req.body.email, {
-        all_lowercase: true,
-      });
-    }
+    // Normalise email
+    const email = validator.normalizeEmail(req.body.email, {
+      all_lowercase: true,
+    });
 
-    if (req.body.password) {
-      // Encrypt the new password
-      bcrypt.genSalt(10, (err, salt) => {
-        bcrypt.hash(req.body.password, salt, (err, hash) => {
-          if (err) throw err;
-          updatedFields.password = hash;
-          // Update the user
+    // Check if email is already taken
+    User.findOne({ email: email }).then((user) => {
+      if (user) {
+        res
+          .status(400)
+          .json({ emailTakenError: `Email has already been taken` });
+      } else {
+        const updatedFields = {};
+        if (req.body.name) updatedFields.name = req.body.name;
+        if (req.body.email) {
+          // Normalise email to all lowercase
+          updatedFields.email = validator.normalizeEmail(req.body.email, {
+            all_lowercase: true,
+          });
+        }
+
+        if (req.body.password) {
+          // Encrypt the new password
+          bcrypt.genSalt(10, (err, salt) => {
+            bcrypt.hash(req.body.password, salt, (err, hash) => {
+              if (err) throw err;
+              updatedFields.password = hash;
+              // Update the user
+              User.findOneAndUpdate(
+                { _id: req.user.id },
+                { $set: updatedFields },
+                { new: true }
+              ).then((user) => res.json(user));
+            });
+          });
+        } else {
+          // Update the user if a password was not included
           User.findOneAndUpdate(
             { _id: req.user.id },
             { $set: updatedFields },
             { new: true }
           ).then((user) => res.json(user));
-        });
-      });
-    } else {
-      // Update the user if a password was not included
-      User.findOneAndUpdate(
-        { _id: req.user.id },
-        { $set: updatedFields },
-        { new: true }
-      ).then((user) => res.json(user));
-    }
+        }
+      }
+    });
   }
 );
 
