@@ -582,7 +582,7 @@ router.post(
             ) {
               // If the new user is already a member or is a moderator, return the error in a json object with a bad request status code.
               res.status(400).json({
-                notAMemberOrModeratorError:
+                cannotKickError:
                   'The user is either not a member or is a moderator',
               });
             } else {
