@@ -150,7 +150,7 @@ router.get('/handle/:handle', (req, res) => {
 });
 
 // @route   DELETE api/profile
-// @desc    delete profile
+// @desc    D elete profile
 // @access  Private
 router.delete(
   '/',

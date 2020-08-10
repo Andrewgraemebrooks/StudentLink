@@ -62,7 +62,7 @@ class Profile extends Component {
   }
 }
 
-const mapStateToProps = (state) => ({
+const addStateToProps = (state) => ({
   profile: state.profile,
   auth: state.auth,
 });
@@ -73,4 +73,4 @@ Profile.propTypes = {
   profile: PropTypes.object.isRequired,
 };
 
-export default connect(mapStateToProps, { getCurrentProfile })(Profile);
+export default connect(addStateToProps, { getCurrentProfile })(Profile);

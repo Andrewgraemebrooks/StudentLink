@@ -189,7 +189,7 @@ router.post(
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
     // Check if there were any validation errors
-    const { errors, noErrors } = validateGroupInput(req.body);
+    const { errors, noErrors } = validateUpdateInput(req.body);
 
     // If there were errors, return the errors in a json object with a bad request status code
     if (!noErrors) {

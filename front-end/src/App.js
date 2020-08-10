@@ -5,6 +5,7 @@ import Footer from './components/common/Footer';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import Profile from './components/profile/Profile';
+import Groups from './components/groups/Groups';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import store from './store';
@@ -47,7 +48,14 @@ function App() {
               <PrivateRoute exact path="/profile" component={Profile} />
             </Switch>
             <Switch>
-              <PrivateRoute exact path="/create-profile" component={CreateProfile} />
+              <PrivateRoute
+                exact
+                path="/create-profile"
+                component={CreateProfile}
+              />
+            </Switch>
+            <Switch>
+              <PrivateRoute exact path="/groups" component={Groups} />
             </Switch>
           </div>
           <Footer />

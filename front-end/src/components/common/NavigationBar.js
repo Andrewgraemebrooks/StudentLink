@@ -73,7 +73,10 @@ NavigationBar.propTypes = {
   auth: Proptypes.object.isRequired,
 };
 
-const mapStateToProps = (state) => ({
-  auth: state.auth,});
+const addStateToProps = (state) => ({
+  auth: state.auth,
+});
 
-export default connect(mapStateToProps, { logoutUser, clearCurrentProfile })(NavigationBar);
+export default connect(addStateToProps, { logoutUser, clearCurrentProfile })(
+  NavigationBar
+);
