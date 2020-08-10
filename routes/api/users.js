@@ -80,7 +80,10 @@ router.post('/login', (req, res) => {
     return res.status(400).json(errors);
   }
 
-  const email = req.body.email;
+  // Normalise email
+  const email = validator.normalizeEmail(req.body.email, {
+    all_lowercase: true,
+  });
   const password = req.body.password;
 
   // Find user
