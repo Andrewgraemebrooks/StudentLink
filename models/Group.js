@@ -32,6 +32,11 @@ const GroupSchema = new Schema({
   chat: {
     type: [String],
   },
+  // Group's posts
+  posts: {
+    type: [Schema.Types.ObjectId],
+    ref: 'posts',
+  },
   // The moderators of the group
   moderators: {
     type: [String],
