@@ -9,6 +9,7 @@ const Profile = require('../../models/Profile');
 // Validation
 const validatePostInput = require('../../validation/textposts');
 const validateUpdateInput = require('../../validation/update-posts');
+const Group = require('../../models/Group');
 
 // @route   GET api/textposts/test
 // @desc    Tests posts route
@@ -32,22 +33,20 @@ router.post(
     }
     Profile.findOne({ user: req.user.id })
       .then((profile) => {
-        // Create a new post object with the inputted information
-        const newTextPost = new TextPost({
-          text: req.body.text,
-          user: profile.handle,
-          group: req.params.handle,
-        });
+        Group.findOne({ handle: req.params.handle })
+          .then((group) => {
+            // Create a new post object with the inputted information
+            const newTextPost = new TextPost({
+              text: req.body.text,
+              user: profile.handle,
+              group: req.params.handle,
+            });
 
-        // Save the new post
-        newTextPost
-          .save()
-          .then(res.status(200).json(newTextPost))
-          // If there was an error saving the text post, return the error in a json object with a bad request status code.
+            group.posts.addToSet(newTextPost);
+            group.save().then(res.status(200).json(group))
+          })
           .catch((err) =>
-            res.status(400).json({
-              saveTextPostError: `There was an error saving the text post: ${err}`,
-            })
+            res.status(400).json({ findGroupError: 'Could not find group' })
           );
       })
       // If there was an error finding the profile, return the error in a json object with a not found status code.
