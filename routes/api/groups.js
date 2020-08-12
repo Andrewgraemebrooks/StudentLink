@@ -626,12 +626,12 @@ router.get(
   (req, res) => {
     Group.findOne({ handle: req.params.handle })
       .then((group) => {
-        res.status(200).json(group);
+        res.status(200).json(group.posts);
       })
       .catch((err) =>
         res
-          .status(400)
-          .json({ findingGroupError: 'Could not find a group by that handle' })
+          .status(404)
+          .json({ findingGroupError: 'There was an error finding the group' })
       );
   }
 );

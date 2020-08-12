@@ -43,7 +43,15 @@ router.post(
             });
 
             group.posts.addToSet(newTextPost);
-            group.save().then(res.status(200).json(group))
+            group.save().catch((err) =>
+              res.status(400).json({
+                savingGroupsError: 'There was an error saving the group',
+              })
+            );
+
+            new TextPost(newTextPost)
+              .save()
+              .then(res.status(200).json(newTextPost));
           })
           .catch((err) =>
             res.status(400).json({ findGroupError: 'Could not find group' })
