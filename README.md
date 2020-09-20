@@ -11,6 +11,7 @@ StudentLink is an open source social media site built in the MERN stack (MongoDB
 - [Installation](##Installation)
 - [Usage](##Usage)
 - [Thanks](##Thanks)
+- [License](##License)
 
 ## Installation
 
