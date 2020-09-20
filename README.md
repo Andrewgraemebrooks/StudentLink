@@ -47,4 +47,4 @@ Thank you to all my teachers, friends, and family who helped me during the devel
 
 ## License
 
-StudentLink is [MIT-Licensed](https://github.com/immutable-js/immutable-js/blob/master/LICENSE)
+StudentLink is [MIT-Licensed](LICENSE)
