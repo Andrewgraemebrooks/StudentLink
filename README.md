@@ -16,7 +16,7 @@ After cloning the files run the following npm command:
 
 `npm install && npm run front-end-install`
 
-The current version requires the use:
+The current version requires the use of:
 
 - The Redux DevTools Extension:
   [Google Chrome](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd),
