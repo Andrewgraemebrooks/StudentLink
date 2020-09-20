@@ -6,13 +6,6 @@
 
 StudentLink is an open source social media site built in the MERN stack (MongoDB, Express.js, React.js, and Node.js).
 
-## Table of Contents
-
-- [Installation](##Installation)
-- [Usage](##Usage)
-- [Thanks](##Thanks)
-- [License](##License)
-
 ## Installation
 
 To install, clone the directory using the command:
