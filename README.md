@@ -2,8 +2,6 @@
 
 ![alt text](media/loginpage.png "StudentLink Login Page")
 
-## What is the project?
-
 StudentLink is an open source social media site built in the MERN stack (MongoDB, Express.js, React.js, and Node.js).
 
 ## Installation
