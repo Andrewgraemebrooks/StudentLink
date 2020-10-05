@@ -1,8 +1,8 @@
 # StudentLink
 
-![alt text](media/loginpage.png "StudentLink Login Page")
-
 StudentLink is an open source social media site built in the MERN stack (MongoDB, Express.js, React.js, and Node.js).
+
+![alt text](media/loginpage.png "StudentLink Login Page")
 
 ## Installation
 
