@@ -1,16 +1,8 @@
 # StudentLink
 
-![alt text](media/loginpage.png "StudentLink Login Page")
-
-## What is the project?
-
 StudentLink is an open source social media site built in the MERN stack (MongoDB, Express.js, React.js, and Node.js).
 
-## Table of Contents
-
-- [Installation](##Installation)
-- [Usage](##Usage)
-- [Thanks](##Thanks)
+![alt text](media/loginpage.png "StudentLink Login Page")
 
 ## Installation
 
@@ -22,7 +14,7 @@ After cloning the files run the following npm command:
 
 `npm install && npm run front-end-install`
 
-The current version requires the use:
+The current version requires the use of:
 
 - The Redux DevTools Extension:
   [Google Chrome](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd),
