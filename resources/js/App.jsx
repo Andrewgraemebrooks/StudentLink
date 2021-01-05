@@ -1,13 +1,13 @@
 import React from 'react';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
-import Home from './views/Home/Home';
+import Landing from './views/Landing/Landing';
 
 function App(props) {
   return (
     <BrowserRouter>
       <div className="App">
         <Switch>
-          <Route exact path="/" component={Home} />
+          <Route exact path="/" component={Landing} />
         </Switch>
       </div>
     </BrowserRouter>

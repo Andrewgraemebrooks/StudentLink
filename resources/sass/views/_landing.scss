@@ -34,9 +34,35 @@
   @media only screen and (max-width: 600px) {
     form {
       width: 100%;
+      -webkit-box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+      box-shadow: 1 0 0 rgba(0, 0, 0, 0), 0 0 0 rgba(0, 0, 0, 0);
     }
     .text-col {
       align-items: center;
     }
+
+    .form-col {
+      padding-top: 10px;
+    }
+  }
+}
+
+.modal-body {
+  .row {
+    padding: 5px 10px 5px 10px;
+  }
+
+  .btn {
+    margin-top: 1em;
+    width: 100%;
+  }
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: center;
+
+  .btn {
+    width: 35%;
   }
 }
