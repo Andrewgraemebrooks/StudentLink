@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Modal } from 'react-bootstrap';
+import { Link, Redirect } from 'react-router-dom';
 
 class Landing extends Component {
   constructor(props) {
@@ -86,9 +87,13 @@ class Landing extends Component {
                 onChange={this.onChange}
                 placeholder="Enter password"
               />
-              <button className="btn btn-primary" onClick={this.onLoginSubmit}>
+              {/* <button className="btn btn-primary" onClick={this.onLoginSubmit}>
                 Log In
-              </button>
+              </button> */}
+              {/* Temporary while working on the front-end */}
+              <Link to="/home" className="btn btn-primary">
+                Log In
+              </Link>
               <hr />
               <button className="btn btn-success" onClick={this.onOpenModal}>
                 Create A New Account
