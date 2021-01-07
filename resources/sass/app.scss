@@ -10,3 +10,8 @@
 // Views
 @import './views/landing';
 @import './views/home';
+
+// Global Settings
+.content-container {
+  height: 100vh;
+}

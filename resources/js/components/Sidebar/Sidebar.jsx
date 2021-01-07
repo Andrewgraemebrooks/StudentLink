@@ -7,17 +7,15 @@ import ListItemText from '@material-ui/core/ListItemText';
  * A sidebar component
  * @param {Object[]} items - The sidebar items.
  */
-function Sidebar({ items }) {
+function Sidebar(props) {
   return (
-    <div className="sidebar">
-      <List disablePadding dense>
-        {items.map(({ label, name, ...rest }) => (
-          <ListItem key={name} button {...rest}>
-            <ListItemText>{label}</ListItemText>
-          </ListItem>
-        ))}
-      </List>
-    </div>
+    <List className={props.collapsed}>
+      {props.items.map(({ label, name, ...rest }) => (
+        <ListItem key={name} button {...rest}>
+          <ListItemText>{label}</ListItemText>
+        </ListItem>
+      ))}
+    </List>
   );
 }
 

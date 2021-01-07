@@ -63,7 +63,7 @@ class Landing extends Component {
 
   render() {
     return (
-      <div id="home-container" className="container">
+      <div id="landing-container" className="container content-container">
         <div className="row">
           <div className="col text-col">
             <h1>StudentLink</h1>

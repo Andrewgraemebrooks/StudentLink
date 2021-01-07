@@ -13,8 +13,10 @@ const sidebarItems = [
 
 function Home(props) {
   return (
-    <div>
-      <Sidebar items={sidebarItems} />
+    <div id="home-container" className="container content-container">
+      <div className="sidebar">
+        <Sidebar items={sidebarItems} />
+      </div>
     </div>
   );
 }
