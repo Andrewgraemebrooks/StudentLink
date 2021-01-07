@@ -9,7 +9,7 @@ import ListItemText from '@material-ui/core/ListItemText';
  */
 function Sidebar(props) {
   return (
-    <List className={props.collapsed}>
+    <List>
       {props.items.map(({ label, name, ...rest }) => (
         <ListItem key={name} button {...rest}>
           <ListItemText>{label}</ListItemText>
