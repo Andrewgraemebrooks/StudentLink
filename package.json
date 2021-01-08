@@ -34,7 +34,6 @@
         "sass-loader": "^8.0.0"
     },
     "dependencies": {
-        "@material-ui/core": "^4.11.2",
         "react-bootstrap": "^1.4.0",
         "react-router-dom": "^5.2.0"
     }

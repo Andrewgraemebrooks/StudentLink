@@ -1,21 +1,21 @@
 import React from 'react';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
-
+import { ListGroup } from 'react-bootstrap';
 /**
  * A sidebar component
  * @param {Object[]} items - The sidebar items.
  */
 function Sidebar(props) {
   return (
-    <List>
-      {props.items.map(({ label, name }) => (
-        <ListItem key={name} button>
-          <ListItemText>{label}</ListItemText>
-        </ListItem>
-      ))}
-    </List>
+    <div className={`sidebar bg-light ${props.showSidebar ? 'hidden' : ''}`}>
+      <div className="sidebar-heading">StudentLink</div>
+      <ListGroup className="list-group-flush">
+        {props.items.map(({ label, name }) => (
+          <ListGroup.Item className="bg-light" key={name} action onClick={alert}>
+            {label}
+          </ListGroup.Item>
+        ))}
+      </ListGroup>
+    </div>
   );
 }
 
