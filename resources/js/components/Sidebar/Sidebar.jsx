@@ -10,8 +10,8 @@ import ListItemText from '@material-ui/core/ListItemText';
 function Sidebar(props) {
   return (
     <List>
-      {props.items.map(({ label, name, ...rest }) => (
-        <ListItem key={name} button {...rest}>
+      {props.items.map(({ label, name }) => (
+        <ListItem key={name} button>
           <ListItemText>{label}</ListItemText>
         </ListItem>
       ))}
