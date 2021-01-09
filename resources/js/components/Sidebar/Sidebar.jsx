@@ -1,5 +1,6 @@
 import React from 'react';
 import { ListGroup } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 /**
  * A sidebar component
  * @param {Object[]} items - The sidebar items.
@@ -7,7 +8,7 @@ import { ListGroup } from 'react-bootstrap';
 function Sidebar(props) {
   return (
     <div className="sidebar bg-light">
-      <div className="sidebar-heading">StudentLink</div>
+      <Link className="sidebar-heading navbar-brand text-dark" to="/">StudentLink</Link>
       <ListGroup className="list-group-flush">
         {props.items.map(({ label, name }) => (
           <ListGroup.Item className="bg-light" key={name} action onClick={alert}>
