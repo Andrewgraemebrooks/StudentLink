@@ -6,7 +6,7 @@ import { ListGroup } from 'react-bootstrap';
  */
 function Sidebar(props) {
   return (
-    <div className={`sidebar bg-light ${props.showSidebar ? 'hidden' : ''}`}>
+    <div className="sidebar bg-light">
       <div className="sidebar-heading">StudentLink</div>
       <ListGroup className="list-group-flush">
         {props.items.map(({ label, name }) => (
