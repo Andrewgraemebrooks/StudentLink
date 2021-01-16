@@ -8,10 +8,17 @@ import { Link } from 'react-router-dom';
 function Sidebar(props) {
   return (
     <div className="sidebar bg-light">
-      <Link className="sidebar-heading navbar-brand text-dark" to="/">StudentLink</Link>
+      <Link className="sidebar-heading navbar-brand text-dark" to="/">
+        StudentLink
+      </Link>
       <ListGroup className="list-group-flush">
         {props.items.map(({ label, name }) => (
-          <ListGroup.Item className="bg-light" key={name} action onClick={alert}>
+          <ListGroup.Item
+            className="bg-light"
+            key={name}
+            action
+            onClick={alert}
+          >
             {label}
           </ListGroup.Item>
         ))}

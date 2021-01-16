@@ -101,7 +101,12 @@ class Landing extends Component {
             </form>
           </div>
         </div>
-        <Modal title="Title" animation={false} show={this.state.isOpen} centered={true}>
+        <Modal
+          title="Title"
+          animation={false}
+          show={this.state.isOpen}
+          centered={true}
+        >
           <Modal.Header>
             <Modal.Title>Sign Up</Modal.Title>
             <button type="button" className="close" onClick={this.onCloseModal}>
