@@ -11,7 +11,7 @@ function Sidebar(props) {
       <Link className="sidebar-heading navbar-brand text-dark" to="/">StudentLink</Link>
       <ListGroup className="list-group-flush">
         {props.items.map(({ label, name }) => (
-          <ListGroup.Item className="bg-light" key={name} action onClick={alert}>
+          <ListGroup.Item className="bg-light" key={name} action>
             {label}
           </ListGroup.Item>
         ))}

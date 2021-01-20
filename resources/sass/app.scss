@@ -11,6 +11,9 @@
 @import './views/landing';
 @import './views/home';
 
+// Components
+@import './components/post';
+
 // Global Settings
 .content-container {
   min-height: 100vh;

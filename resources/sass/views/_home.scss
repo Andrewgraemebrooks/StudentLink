@@ -17,5 +17,6 @@ $sidebar_width: 175px;
 
   #page-content-wrapper {
     min-width: calc(100vw - #{$sidebar_width});
+    background-color: #495054;
   }
 }
